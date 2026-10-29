@@ -1,0 +1,61 @@
+<div class="container-fluid" *ngIf="!loading"> 
+<nb-card>
+  <nb-card-header>
+    <div class="header-container">
+      <div class="header-title">Stream</div>
+
+      <div class="header-actions">
+        <input #search  type="text" placeholder="Search..." (input)="onSearch(search.value)" class="search">
+        <button (click)="openWindowForm(formPopup)" nbButton>Add New</button>
+      </div>
+
+    </div>
+  </nb-card-header>
+
+  <nb-card-body>
+    <angular2-smart-table [settings]="settings" [source]="source" (edit)="edit($event ,formPopup)">
+    </angular2-smart-table>
+
+      <ng-template #formPopup>
+        <form [formGroup]="form" class="form" *ngIf="!modelLoading">
+          <div class="form-group">
+            <label for="code">Code:</label>
+              <input nbInput fullWidth formControlName="code" placeholder="Enter Code">
+              <span *ngIf="form.get('code')?.touched && form.get('code')?.hasError('required')" class="errormsg">This field is required.</span>
+             <div *ngIf="errorMessage" class="text-danger">{{ errorMessage}}</div>
+          </div>
+      
+          <div class="form-group">
+            <label for=" description">Stream Name:</label>
+            <!-- <input nbInput fullWidth id="stream_name" type="text" formControlName="stream_name" placeholder="Enter Stream Name"> -->
+             <input nbInput fullWidth formControlName="description" placeholder="Enter Stream Name">
+             <span class="errormsg" *ngIf="form.get('description')?.touched && form.get('description')?.hasError('required')" class="errormsg">This field is required.</span>
+          </div>
+
+          <div class="form-group">
+            <label>Status:</label>
+            <nb-select fullWidth formControlName="status" placeholder="Select Status">
+             <!-- <nb-option value="">-Select-</nb-option>-->
+              <nb-option value="A">Active</nb-option>
+              <nb-option value="I">Inactive</nb-option>
+            </nb-select>
+            <span class="errormsg" *ngIf="form.get('status')?.touched && form.get('status')?.hasError('required')" class="errormsg">This field is required.</span>
+          </div>
+              
+          <div class="form-actions">
+            <button class="btn btn-outline-success" type="button" [disabled]="form.invalid || (isEditMode && !isChanged)"  (click)="submitForm()">Submit</button>
+            <button class="btn btn-outline-warning" type="button"  (click)="windowRef.close()">Cancel</button>
+          </div>
+        </form>
+        
+        <div class="loader" *ngIf="modelLoading">
+          <img src="./assets/images/loading.gif" alt="modelLoading" class="loader-img">
+      </div>
+      </ng-template>
+  </nb-card-body>
+</nb-card>
+</div>
+<div class="loader" *ngIf="loading">
+    <img src="./assets/images/loading.gif" alt="loading" class="loader-img">
+</div>
+

@@ -1,0 +1,242 @@
+<div class="container-fluid" *ngIf="!loading">
+  <nb-card>
+    <nb-card-header>
+      <div class="header-container">
+        <div class="header-title">Subject</div>
+        <div class="header-actions">
+          <input #search class="search" type="text" placeholder="Search..." (input)="onSearch(search.value)">
+          <button (click)="openWindowForm(addModal)" nbButton *ngIf="!loading">Add New</button>
+        </div>
+      </div>
+    </nb-card-header>
+
+    <nb-card-body>
+      <angular2-smart-table [settings]="settings" [source]="source" (deleteConfirm)="onDeleteConfirm($event)" (edit)="edit($event, editModal)" *ngIf="!loading">
+      </angular2-smart-table>
+
+      <ng-template #addModal>
+        <form [formGroup]="addForm" (ngSubmit)="create()" *ngIf="!modelLoading">
+          <div class="scrollable-form">
+
+            <div class="form-group">
+              <label for="examCategoryId">Exam Category  <span class="text-danger">*</span> </label>
+                <select formControlName="examCategoryId" name="examCategoryId" id="examCategoryId" class="contact-name form-control" (change)="examChanges($event)"
+                [ngClass]="{'is-invalid': addForm.get('examCategoryId').touched && addForm.get('examCategoryId').invalid}">
+                  <option [ngValue]="null" selected="selected" disabled="disabled" >-- Select Category --</option>
+                  <option *ngFor="let category of ExamCategoryList" [value]="category.examCategoryId">
+                    {{ category.exam }}
+                  </option>
+                </select>
+                <div class="invalid-feedback">
+                  <div *ngIf="addForm.get('examCategoryId')?.hasError('required')">Exam Category is required
+                  </div>
+                </div>
+            </div>
+
+            <div class="form-group">
+              <label for="subject">Subject  <span class="text-danger">*</span> </label>
+                <input type="text" formControlName="subject" id="subject" class="subject form-control" placeholder="Enter Subject" [ngClass]="{'is-invalid': addForm.get('subject').touched && addForm.get('subject').invalid}">
+                <div *ngIf="addForm.touched && !(addForm.get('subject').valid)" class="invalid-feedback">
+                  <div *ngIf="addForm.get('subject')?.hasError('required')">Subject is required</div>
+                </div>
+            </div>
+
+            <div class="form-group">
+              <label for="code">Code  <span class="text-danger">*</span> </label>
+              <input type="text" formControlName="code" id="code" class="code form-control" placeholder="Enter Code" (input)="addForm.get('code')?.setValue($event.target.value.toUpperCase(), { emitEvent: false })"
+              [ngClass]="{'is-invalid': addForm.get('code').touched && addForm.get('code').invalid}">
+                <div *ngIf="addForm.touched && !(addForm.get('code').valid)" class="invalid-feedback">
+                  <div *ngIf="addForm.get('code')?.hasError('required')">Code is required</div>
+                </div>
+            </div>
+
+            <div class="form-group">
+              <label for="status">Status  <span class="text-danger">*</span> </label>
+              <select formControlName="status" name="status" id="status" class="contact-name form-control"
+              [ngClass]="{'is-invalid': addForm.get('status').touched && addForm.get('status').invalid}">
+                <option value="null" selected="selected" disabled="disabled">- Select -</option>
+                <option value="A">Active</option>
+                <option value="I">Inactive</option>
+              </select>
+              <div class="invalid-feedback">
+                <div *ngIf="addForm.get('status')?.hasError('required')">Status is required</div>
+              </div>
+            </div>
+            
+            <div class="form-group" *ngIf="showRelevantTo">
+              <label for="relevantTo">Relevant To  <span class="text-danger">*</span> </label>
+                <select formControlName="relevantTo" name="relevantTo" id="relevantTo" class="contact-name form-control" 
+                  [ngClass]="{'is-invalid': addForm.get('relevantTo').touched && addForm.get('relevantTo').invalid}">
+                  <option value="null" selected="selected" disabled="disabled" >-- Select Semester --</option>
+                  <option value="SEM1">Semester I</option>
+                  <option value="SEM2">Semester II</option>
+                  <option value="SEM3">Semester III</option>
+                  <option value="SEM4">Semester IV</option>
+                </select>
+                <div class="invalid-feedback">
+                  <div *ngIf="addForm.get('relevantTo')?.hasError('required')">Semester is required</div>
+                </div>
+            </div>
+            <div class="form-group" *ngIf="showStream">
+              <label for="stream">Streams  <span class="text-danger">*</span> </label>
+                <div class="stream-toggle-container">
+                  <mat-slide-toggle
+                    *ngFor="let stream of streamList" 
+                    (change)="onStreamToggle($event, stream.streamId, 'add')">
+                    {{ stream.code }}
+                  </mat-slide-toggle>
+                </div>
+              <div class="invalid-feedback" *ngIf="InValidStream" style="display:block; color:red; margin-top:5px;">
+                At least one stream must be selected
+              </div>
+            </div>
+  
+            <div class="form-group">
+              <label for="image" class="img2">Image  <span class="text-danger">*</span> </label>
+              <input type="file" (change)="onFileSelected($event)" formControlName="image" name="image" id="image" class="contact-name form-control"
+              [ngClass]="{'is-invalid': addForm.get('image').touched && addForm.get('image').invalid}">
+              <div class="invalid-feedback">
+                <div *ngIf="addForm.get('image')?.hasError('required')">Image is required</div>
+              </div>
+            </div>
+
+            <div class="form-actions">
+              <button type="submit" class="btn btn-outline-success" 
+              [disabled]="addForm.invalid || (showStream && addForm.get('stream')?.value.length === 0)">Submit</button>
+              <button type="button" class="btn btn-outline-warning"  (click)="dialogRef.close()">Cancel</button>
+            </div>
+          </div>
+        </form>
+        
+        <div class="loader" *ngIf="modelLoading">
+          <img src="./assets/images/loading.gif" alt="modelLoading" class="loader-img">
+        </div>
+      </ng-template>
+
+
+      <ng-template #editModal>
+        <form [formGroup]="editForm" (ngSubmit)="update()" *ngIf="!modelLoading">
+          <div class="scrollable-form">
+
+
+            <div class="form-group">
+              <label for="examCategoryId">Exam Category</label>
+                <select formControlName="examCategoryId" name="examCategoryId" id="examCategoryId" class="contact-name form-control" (change)="examChanges($event)" [ngClass]="{'is-invalid': editForm.get('examCategoryId').touched && editForm.get('examCategoryId').invalid}" >
+                  <option [ngValue]="null" selected="selected" disabled="disabled" >-- Select Category --</option>
+                  <option *ngFor="let category of ExamCategoryList" [value]="category.examCategoryId">
+                    {{ category.exam }}
+                  </option>
+                </select>
+              <div class="invalid-feedback">
+                <div *ngIf="editForm.get('examCategoryId')?.hasError('required')">Exam Category is required</div>
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label for="subject">Subject</label>
+                <input type="text" formControlName="subject" id="subject" class="subject form-control" placeholder="Enter Subject" (change)="onFiledChange()" [ngClass]="{'is-invalid': editForm.get('subject').touched && editForm.get('subject').invalid}">
+                <div *ngIf="editForm.touched && !(editForm.get('subject').valid)" class="invalid-feedback">
+                  <div *ngIf="editForm.get('subject')?.hasError('required')">Subject is required</div>
+                </div>
+            </div>
+
+            <div class="form-group">
+              <label for="code">Code</label>
+              <input type="text" formControlName="code" id="code" class="code form-control" placeholder="Enter Code" [ngClass]="{'is-invalid': editForm.get('code').touched && editForm.get('code').invalid}">
+                <div *ngIf="editForm.touched && !(editForm.get('code').valid)" class="invalid-feedback">
+                  <div *ngIf="editForm.get('code')?.hasError('required')">Code is required</div>
+                </div>
+            </div>
+
+
+
+            <div class="form-group">
+              <label for="status">Status</label>
+              <select formControlName="status" name="status" id="status" class="contact-name form-control" (change)="onFiledChange()"
+              [ngClass]="{'is-invalid': editForm.get('status').touched && editForm.get('status').invalid}">
+                <option value="null" selected="selected" disabled="disabled">- Select -</option>
+                <option value="A">Active</option>
+                <option value="I">Inactive</option>
+              </select>
+              <div class="invalid-feedback">
+                <div *ngIf="editForm.get('status')?.hasError('required')">Status is required</div>
+              </div>
+            </div>
+            
+              <div class="form-group"  *ngIf="showRelevantTo">
+                <label for="relevantTo">Relevant To</label>
+                  <select formControlName="relevantTo" name="relevantTo" id="relevantTo" class="contact-name form-control"  (change)="onFiledChange()" [ngClass]="{'is-invalid': addForm.get('relevantTo').touched && addForm.get('relevantTo').invalid}">
+                    <option [ngValue]="null" selected="selected" disabled="disabled" >-- Select Semester --</option>
+                    <option value="SEM1">Semester I</option>
+                    <option value="SEM2">Semester II</option>
+                    <option value="SEM3">Semester III</option>
+                    <option value="SEM4">Semester IV</option>
+                  </select>
+                  <div class="invalid-feedback">
+                    <div *ngIf="editForm.get('relevantTo')?.hasError('required')">Semester is required</div>
+                  </div>
+              </div>
+            <div class="form-group" *ngIf="showStream">
+              <label for="stream">Streams</label>
+              <div class="stream-toggle-container">
+                <mat-slide-toggle
+                  *ngFor="let stream of SubjectStreamList" (change)="onStreamToggle($event, stream.streamId, 'edit')"
+                  [checked]="editForm.get('stream').value?.includes(stream.streamId)">
+                  {{ stream.code }}
+                </mat-slide-toggle>
+              </div>
+              <div class="invalid-feedback" *ngIf="InValidStream" style="display:block; color:red; margin-top:5px;">
+                At least one stream must be selected
+              </div>
+            </div>
+            
+            <div class="check-box">
+              <nb-checkbox formControlName="contentAvailable" id="contentAvailable" checked (change)="onFiledChange()">
+                Content Available
+              </nb-checkbox>
+            </div>
+            <div class="check-box">
+              <nb-checkbox formControlName="engAvailable" id="engAvailable" checked (change)="onFiledChange()">
+                Eng Questions Available
+              </nb-checkbox>
+            </div>
+            <div class="check-box">
+              <nb-checkbox formControlName="sinAvailable" id="sinAvailable" checked (change)="onFiledChange()">
+                Sin Questions Available
+              </nb-checkbox>
+            </div>
+            <div class="check-box">
+              <nb-checkbox formControlName="tamAvailable" id="tamAvailable" checked (change)="onFiledChange()" >
+                Tam Questions Available
+              </nb-checkbox>
+            </div>
+
+            <div class="form-group">
+              <label class="img2">Image</label>
+              <input type="file" 
+                    class="form-control" 
+                    (change)="onFileSelected($event,'edit')"/> 
+              <div class="mt-2" *ngIf="imageUrl">
+                <img [src]="imageUrl" alt="Preview" style="max-width:200px; max-height:200px; object-fit:contain;" />
+              </div>
+            </div>
+            <div class="form-actions">
+              <button type="submit" class="btn btn-outline-success"
+                      [disabled]="!checkUpdate">
+                Update
+              </button>
+              <button type="button" class="btn btn-outline-warning"  (click)="dialogRef.close()">Cancel</button>
+            </div>
+          </div>
+        </form>
+        
+        <div class="loader" *ngIf="modelLoading">
+          <img src="./assets/images/loading.gif" alt="modelLoading" class="loader-img">
+        </div>
+      </ng-template>
+    </nb-card-body>
+  </nb-card>
+</div>
+<div class="loader" *ngIf="loading">
+    <img src="./assets/images/loading.gif" alt="loading" class="loader-img">
+</div>

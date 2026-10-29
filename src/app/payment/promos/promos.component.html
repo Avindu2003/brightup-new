@@ -1,0 +1,446 @@
+<div class="container-fluid" *ngIf="!loading">
+  <nb-card>
+    <nb-card-header>
+      <div class="header-container">
+        <div class="header-title">Promo</div>
+        <div class="header-actions">
+          <input #search class="search" type="text" placeholder="Search..." (input)="onSearch(search.value)">
+          <button (click)="openWindowForm(addModal)" nbButton>Add New</button>
+        </div>
+      </div>
+    </nb-card-header>
+
+    <nb-card-body>
+      <angular2-smart-table [settings]="settings" [source]="source" (edit)="edit($event, editModal)">
+      </angular2-smart-table>
+
+      <ng-template #addModal>
+        <form [formGroup]="addForm" *ngIf="!modelLoading" (ngSubmit)="create()">
+          <div class="scrollable-form">
+            <div class="row">
+              <div class="form-group col-md-6">
+                <label for="promoType">Promo Type</label>
+                <select formControlName="promoType" name="promoType" id="promoType" class="contact-name form-control"
+                  [ngClass]="{'is-invalid': addForm.get('promoType').touched && addForm.get('promoType').invalid}">
+                  <option value="null" selected="selected" disabled="disabled">- Select -</option>
+                  <option value="CAD"> Cash Flat Amount Discount</option>
+                  <option value="QCD">Quiz Count Discount</option>
+                  <option value="CPD">Cash Percentage Discount</option>
+                </select>
+                <div class="errormsg" *ngIf="addForm.get('promoType')?.errors?.['required']&&addForm.get('promoType')?.touched">
+                  Promo Type is required.
+                </div>
+              </div>
+
+
+              <div class="form-group col-md-6">
+                <label for="amount">Amount</label>
+                <input type="text" formControlName="amount" id="amount" class="contact-name form-control" placeholder="Enter amount" [ngClass]="{'is-invalid': addForm.get('amount').touched && addForm.get('amount').invalid}">
+                <div class="errormsg" *ngIf="addForm.get('amount')?.errors?.['required']&&addForm.get('amount')?.touched">
+                  Amount is required.
+                </div>
+                <div class="errormsg" *ngIf="addForm.get('amount')?.errors?.['pattern']&&addForm.get('amount')?.touched">
+                  Only letters, numbers and % are allowed.
+                </div>
+              </div>
+            </div>
+
+
+            <div class="row">
+              <div class="form-group col-md-6">
+                <label for="startDate">Start Date</label>
+                <input type="date" formControlName="startDate" id="startDate" class="contact-name form-control"
+                  [min]="today" [ngClass]="{'is-invalid': addForm.get('startDate').touched && addForm.get('startDate').invalid}" (change)="checkDateValidity()">
+                <div class="errormsg" *ngIf="addForm.get('startDate')?.errors?.['required']&&addForm.get('startDate')?.touched">
+                  Start Date is required.
+                </div>
+                <div *ngIf="addForm.touched" class="errormsg">
+                  <div *ngIf="datevalidationerror">
+                    {{ datevalidationerror }}
+                  </div>
+                </div>
+              </div>
+
+              <div class="form-group col-md-6">
+                <label for="expireDate">Expire Date</label>
+                <input type="date" formControlName="expireDate" id="expireDate" class="contact-name form-control"
+                  [min]="minExpireDate" [ngClass]="{'is-invalid': addForm.get('expireDate').touched && addForm.get('expireDate').invalid}" (change)="checkDateValidity()">
+                <div class="errormsg" *ngIf="addForm.get('expireDate')?.errors?.['required']&&addForm.get('expireDate')?.touched">
+                  Expire Date is required.
+                </div>
+                <div *ngIf="addForm.touched" class="errormsg">
+                  <div *ngIf="datevalidationerror">
+                    {{ datevalidationerror }}
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="row">
+              <div class="form-group col-md-6">
+                <label for="status">Status</label>
+                <select formControlName="status" name="status" id="status" class="contact-name form-control"
+                  [ngClass]="{'is-invalid': addForm.get('status').touched && addForm.get('status').invalid}">
+                  <option value="null" selected="selected" disabled="disabled">- Select -</option>
+                  <option value="A">Active</option>
+                  <option value="I">Inactive</option>
+                </select>
+                <div class="errormsg" *ngIf="addForm.get('status')?.errors?.['required']&&addForm.get('status')?.touched">
+                  Status is required.
+                </div>
+              </div>
+
+              <div class="form-group col-md-6">
+                <label for="applicablePackage">Applicable Package</label>
+                <select formControlName="applicablePackage" name="applicablePackage" id="applicablePackage"
+                  class="contact-name form-control"
+                  [ngClass]="{'is-invalid': addForm.get('applicablePackage').touched && addForm.get('applicablePackage').invalid}">
+                  <option value="null" selected="selected" disabled="disabled">- Select -</option>
+                  <option value="ALL">All</option>
+                  <option value="BEG">Beginner</option>
+                  <option value="INT">Intermediate</option>
+                  <option value="PRO">Professional</option>
+                </select>
+                <div class="errormsg" *ngIf="addForm.get('applicablePackage')?.errors?.['required']&&addForm.get('applicablePackage')?.touched">
+                  Applicable Package is required.
+                </div>
+              </div>
+            </div>
+
+            <div class="row">
+              <div class="form-group col-md-6">
+                <label for="couponCode">Coupon Code</label>
+                <input type="text" formControlName="couponCode" id="couponCode" class="contact-name form-control"
+                  placeholder="Enter Coupon Code" maxlength="6"
+                  [ngClass]="{'is-invalid': addForm.get('couponCode').touched && addForm.get('couponCode').invalid}">
+                <div class="errormsg" *ngIf="addForm.get('couponCode')?.errors?.['required']&&addForm.get('couponCode')?.touched">
+                  Coupon Code is required.
+                </div>
+                <div *ngIf="addForm.touched" class="errormsg">
+                  <div *ngIf="errorMessage">
+                    {{ errorMessage }}
+                  </div>
+                </div>
+                <div class="errormsg" *ngIf="addForm.get('couponCode')?.errors?.['pattern']&&addForm.get('couponCode')?.touched">
+                  Only uppercase letters and numbers are allowed.
+                </div>
+                <div class="errormsg" *ngIf="addForm.get('couponCode')?.errors?.['minlength']&&addForm.get('couponCode')?.touched">
+                  Coupon Code must be exactly 6 characters.
+                </div>
+              </div>
+
+              <div class="form-group col-md-6">
+                <label for="description">Description</label>
+                <input type="text" formControlName="description" id="description" class="contact-name form-control"
+                  placeholder="Enter Description"
+                  [ngClass]="{'is-invalid': addForm.get('description').touched && addForm.get('description').invalid}">
+                <div class="errormsg" *ngIf="addForm.get('description')?.errors?.['required']&&addForm.get('description')?.touched">
+                  Description is required.
+                </div>
+              </div>
+            </div>
+
+            <div class="row">
+              <div class="form-group col-md-6">
+                <label for="colorTitle">Color Title</label>
+                <input type="text" formControlName="colorTitle" id="colorTitle" class="contact-name form-control"
+                  placeholder="Enter Color Title" maxlength="6"
+                  [ngClass]="{'is-invalid': addForm.get('colorTitle').touched && addForm.get('colorTitle').invalid}">
+                <div class="errormsg" *ngIf="addForm.get('colorTitle')?.errors?.['required']&&addForm.get('colorTitle')?.touched">
+                  Color Title is required.
+                </div>
+                <div class="errormsg" *ngIf="addForm.get('colorTitle')?.errors?.['pattern']&&addForm.get('colorTitle')?.touched">
+                  Only uppercase letters A–F and numbers are allowed.
+                </div>
+                <div class="errormsg" *ngIf="addForm.get('colorTitle')?.errors?.['minlength']&&addForm.get('colorTitle')?.touched">
+                  Color Title must be exactly 6 characters.
+                </div>
+              </div>
+
+              <div class="form-group col-md-6">
+                <label for="colorBody">Color Body</label>
+                <input type="text" formControlName="colorBody" id="colorBody" class="contact-name form-control"
+                  placeholder="Enter Color Body" maxlength="6"
+                  [ngClass]="{'is-invalid': addForm.get('colorBody').touched && addForm.get('colorBody').invalid}">
+                <div class="errormsg" *ngIf="addForm.get('colorBody')?.errors?.['required']&&addForm.get('colorBody')?.touched">
+                  Color Body is required.
+                </div>
+                <div class="errormsg" *ngIf="addForm.get('colorBody')?.errors?.['pattern']&&addForm.get('colorBody')?.touched">
+                  Only uppercase letters A–F and numbers are allowed.
+                </div>
+                <div class="errormsg" *ngIf="addForm.get('colorBody')?.errors?.['minlength']&&addForm.get('colorBody')?.touched">
+                  Color Body must be exactly 6 characters.
+                </div>
+              </div>
+            </div>
+
+            <div class="row">
+              <div class="form-group col-md-6">
+                <label for="colorPackage">Color Package</label>
+                <input type="text" formControlName="colorPackage" id="colorPackage" class="contact-name form-control"
+                  placeholder="Enter Color Package" maxlength="6"
+                  [ngClass]="{'is-invalid': addForm.get('colorPackage').touched && addForm.get('colorPackage').invalid}">
+                <div class="errormsg" *ngIf="addForm.get('colorPackage')?.errors?.['required']&&addForm.get('colorPackage')?.touched">
+                  Color Package is required.
+                </div>
+                <div class="errormsg" *ngIf="addForm.get('colorPackage')?.errors?.['pattern']&&addForm.get('colorPackage')?.touched">
+                  Only uppercase letters A–F and numbers are allowed.
+                </div>
+                <div class="errormsg" *ngIf="addForm.get('colorPackage')?.errors?.['minlength']&&addForm.get('colorPackage')?.touched">
+                  Color Package must be exactly 6 characters.
+                </div>
+              </div>
+
+              <div class="form-group col-md-6">
+                <label for="count">Count</label>
+                <input type="text" formControlName="count" id="count" class="contact-name form-control"
+                  placeholder="Enter Count"
+                  [ngClass]="{'is-invalid': addForm.get('count').touched && addForm.get('count').invalid}">
+                <div class="errormsg" *ngIf="addForm.get('count')?.errors?.['pattern']&&addForm.get('count')?.touched">
+                  Only numbers are allowed.
+                </div>
+              </div>
+            </div>
+
+            <div class="form-check form-switch">
+              <input class="form-check-input" type="checkbox" role="switch" id="flexSwitchCheckDefault"
+                formControlName="personalized">
+              <label class="form-check-label" for="flexSwitchCheckDefault">Personalized</label>
+            </div>
+
+            <!-- <div class="check-box col-md-6">
+              <nb-checkbox formControlName="personalized">Personalized</nb-checkbox>
+            </div> -->
+
+            <div class="form-actions">
+              <button type="submit" class="btn btn-outline-success">Submit</button>
+              <button type="button" class="btn btn-outline-warning" (click)="dialogRef.close()">Cancel</button>
+            </div>
+          </div>
+        </form>
+        <div class="loader" *ngIf="modelLoading">
+          <img src="./assets/images/loading.gif" alt="modelLoading" class="loader-img">
+        </div>
+      </ng-template>
+
+
+      <ng-template #editModal>
+        <form [formGroup]="editForm" (ngSubmit)="update()" *ngIf="!modelLoading">
+          <div class="scrollable-form">
+            <div class="row">
+              <div class="form-group col-md-6">
+                <label for="promoType">Promo Type</label>
+                <select formControlName="promoType" name="promoType" id="promoType" class="contact-name form-control"
+                  (change)="onFieldChange()"
+                  [ngClass]="{'is-invalid': editForm.get('promoType').touched && editForm.get('promoType').invalid}">
+                  <option value="null" disabled>- Select -</option>
+                  <option value="CAD"> Cash Flat Amount Discount</option>
+                  <option value="QCD">Quiz Count Discount</option>
+                  <option value="CPD">Cash Percentage Discount</option>
+                </select>
+                <div class="errormsg" *ngIf="editForm.get('promoType')?.errors?.['required']&&editForm.get('promoType')?.touched">
+                  Promo Type is required.
+                </div>
+              </div>
+
+              <div class="form-group col-md-6">
+                <label for="amount">Amount</label>
+                <input type="text" formControlName="amount" id="amount" class="contact-name form-control"
+                  (change)="onFieldChange()" placeholder="Enter amount"
+                  [ngClass]="{'is-invalid': editForm.get('amount').touched && editForm.get('amount').invalid}">
+                <div class="errormsg"
+                  *ngIf="editForm.get('amount')?.errors?.['required']&&editForm.get('amount')?.touched">
+                  Amount is required.
+                </div>
+                <div class="errormsg" *ngIf="editForm.get('amount')?.errors?.['pattern']&&editForm.get('amount')?.touched">
+                  Only letters, numbers and % are allowed.
+                </div>
+              </div>
+            </div>
+
+            <div class="row">
+              <div class="form-group col-md-6">
+                <label for="startDate">Start Date</label>
+                <input type="date" formControlName="startDate" id="startDate" class="contact-name form-control"
+                  [min]="today" (change)="onFieldChange(); checkDateValidity1()"
+                  [ngClass]="{'is-invalid': editForm.get('startDate').touched && editForm.get('startDate').invalid}">
+                <div class="errormsg" *ngIf="editForm.get('startDate')?.errors?.['required']&&editForm.get('startDate')?.touched">
+                  Start Date is required.
+                </div>
+                <div class="errormsg">
+                  <div *ngIf="datevalidationerror">
+                    {{ datevalidationerror }}
+                  </div>
+                </div>
+              </div>
+
+              <div class="form-group col-md-6">
+                <label for="expireDate">Expire Date</label>
+                <input type="date" formControlName="expireDate" id="expireDate" class="contact-name form-control"
+                  [min]="minExpireDate1" (change)="onFieldChange();checkDateValidity1()"
+                  [ngClass]="{'is-invalid': editForm.get('expireDate').touched && editForm.get('expireDate').invalid}">
+                <div class="errormsg"
+                  *ngIf="editForm.get('expireDate')?.errors?.['required']&&editForm.get('expireDate')?.touched">
+                  Expire Date is required.
+                </div>
+                <div class="errormsg">
+                  <div *ngIf="datevalidationerror">
+                    {{ datevalidationerror }}
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="row">
+              <div class="form-group col-md-6">
+                <label for="status">Status</label>
+                <select formControlName="status" name="status" id="status" class="contact-name form-control"
+                  (change)="onFieldChange()"
+                  [ngClass]="{'is-invalid': editForm.get('status').touched && editForm.get('status').invalid}">
+                  <option value="null" disabled>- Select -</option>
+                  <option value="A">Active</option>
+                  <option value="I">Inactive</option>
+                </select>
+                <div class="errormsg" *ngIf="editForm.get('status')?.errors?.['required']&&editForm.get('status')?.touched">
+                  Status is required.
+                </div>
+              </div>
+
+              <div class="form-group col-md-6">
+                <label for="applicablePackage">Applicable Package</label>
+                <select formControlName="applicablePackage" name="applicablePackage" id="applicablePackage"
+                  class="contact-name form-control" (change)="onFieldChange()"
+                  [ngClass]="{'is-invalid': editForm.get('applicablePackage').touched && editForm.get('applicablePackage').invalid}">
+                  <option value="null" disabled>- Select -</option>
+                  <option value="ALL">All</option>
+                  <option value="BEG">Beginner</option>
+                  <option value="INT">Intermediate</option>
+                  <option value="PRO">Professional</option>
+                </select>
+                <div class="errormsg"
+                  *ngIf="editForm.get('applicablePackage')?.errors?.['required']&&editForm.get('applicablePackage')?.touched">
+                  Applicable Package is required.
+                </div>
+              </div>
+            </div>
+
+            <div class="row">
+              <div class="form-group col-md-6">
+                <label for="couponCode">Coupon Code</label>
+                <input type="text" formControlName="couponCode" id="couponCode" class="contact-name form-control"
+                  (change)="onFieldChange()" placeholder="Enter Coupon Code" maxlength="6"
+                  [ngClass]="{'is-invalid': editForm.get('couponCode').touched && editForm.get('couponCode').invalid}">
+                <div class="errormsg" *ngIf="editForm.get('couponCode')?.errors?.['required']&&editForm.get('couponCode')?.touched">
+                  Coupon Code is required.
+                </div>
+                <div class="errormsg">
+                  <div *ngIf="errorMessage">
+                    {{ errorMessage }}
+                  </div>
+                </div>
+                <div class="errormsg" *ngIf="editForm.get('couponCode')?.errors?.['pattern']&&editForm.get('couponCode')?.touched">
+                  Only uppercase letters and numbers are allowed.
+                </div>
+                <div class="errormsg" *ngIf="editForm.get('couponCode')?.errors?.['minlength']&&editForm.get('couponCode')?.touched">
+                  Coupon Code must be exactly 6 characters.
+                </div>
+              </div>
+
+              <div class="form-group col-md-6">
+                <label for="description">Description</label>
+                <input type="text" formControlName="description" id="description" class="contact-name form-control"
+                  (change)="onFieldChange()" placeholder="Enter Description"
+                  [ngClass]="{'is-invalid': editForm.get('description').touched && editForm.get('description').invalid}">
+                <div class="errormsg" *ngIf="editForm.get('description')?.errors?.['required']&&editForm.get('description')?.touched">
+                  Description is required.
+                </div>
+              </div>
+            </div>
+
+            <div class="row">
+              <div class="form-group col-md-6">
+                <label for="colorTitle">Color Title</label>
+                <input type="text" formControlName="colorTitle" id="colorTitle" class="contact-name form-control"
+                  (change)="onFieldChange()" placeholder="Enter Color Title" maxlength="6"
+                  [ngClass]="{'is-invalid': editForm.get('colorTitle').touched && editForm.get('colorTitle').invalid}">
+                <div class="errormsg" *ngIf="editForm.get('colorTitle')?.errors?.['required']&&editForm.get('colorTitle')?.touched">
+                  Color Title is required.
+                </div>
+                <div class="errormsg"
+                  *ngIf="editForm.get('colorTitle')?.errors?.['pattern']&&editForm.get('colorTitle')?.touched">
+                  Only uppercase letters A–F and numbers are allowed.
+                </div>
+                <div class="errormsg"
+                  *ngIf="editForm.get('colorTitle')?.errors?.['minlength']&&editForm.get('colorTitle')?.touched">
+                  Color Title must be exactly 6 characters.
+                </div>
+              </div>
+
+              <div class="form-group col-md-6">
+                <label for="colorBody">Color Body</label>
+                <input type="text" formControlName="colorBody" id="colorBody" class="contact-name form-control"
+                  (change)="onFieldChange()" placeholder="Enter Color Body" maxlength="6"
+                  [ngClass]="{'is-invalid': editForm.get('colorBody').touched && editForm.get('colorBody').invalid}">
+                <div class="errormsg" *ngIf="editForm.get('colorBody')?.errors?.['required']&&editForm.get('colorBody')?.touched">
+                  Color Body is required.
+                </div>
+                <div class="errormsg" *ngIf="editForm.get('colorBody')?.errors?.['pattern']&&editForm.get('colorBody')?.touched">
+                  Only uppercase letters A–F and numbers are allowed.
+                </div>
+                <div class="errormsg" *ngIf="editForm.get('colorBody')?.errors?.['minlength']&&editForm.get('colorBody')?.touched">
+                  Color Body must be exactly 6 characters.
+                </div>
+              </div>
+            </div>
+
+            <div class="row">
+              <div class="form-group col-md-6">
+                <label for="colorPackage">Color Package</label>
+                <input type="text" formControlName="colorPackage" id="colorPackage" class="contact-name form-control"
+                  (change)="onFieldChange()" placeholder="Enter Color Package" maxlength="6"
+                  [ngClass]="{'is-invalid': editForm.get('colorPackage').touched && editForm.get('colorPackage').invalid}">
+                <div class="errormsg" *ngIf="editForm.get('colorPackage')?.errors?.['required']&&editForm.get('colorPackage')?.touched">
+                  Color Package is required.
+                </div>
+                <div class="errormsg" *ngIf="editForm.get('colorPackage')?.errors?.['pattern']&&editForm.get('colorPackage')?.touched">
+                  Only uppercase letters A–F and numbers are allowed.
+                </div>
+                <div class="errormsg" *ngIf="editForm.get('colorPackage')?.errors?.['minlength']&&editForm.get('colorPackage')?.touched">
+                  Color Package must be exactly 6 characters.
+                </div>
+              </div>
+
+              <div class="form-group col-md-6">
+                <label for="count">Count</label>
+                <input type="text" formControlName="count" id="count" class="contact-name form-control"
+                  (change)="onFieldChange()" placeholder="Enter Count"
+                  [ngClass]="{'is-invalid': editForm.get('count').touched && editForm.get('count').invalid}">
+                <div class="errormsg" *ngIf="editForm.get('count')?.errors?.['pattern']&&editForm.get('count')?.touched">
+                  Only numbers are allowed.
+                </div>
+              </div>
+            </div>
+
+            <div class="form-check form-switch">
+              <input class="form-check-input" type="checkbox" role="switch" id="flexSwitchCheckDefault"
+                formControlName="personalized" (change)="onFieldChange()">
+              <label class="form-check-label" for="flexSwitchCheckDefault">Personalized</label>
+            </div>
+
+            <div class="form-actions">
+              <button type="submit" [disabled]="!isChanged || editForm.invalid || datevalidationerror"  class="btn btn-outline-success">Update</button>
+              <button type="button" class="btn btn-outline-warning" (click)="dialogRef.close()">Cancel</button>
+            </div>
+          </div>
+        </form>
+        <div class="loader" *ngIf="modelLoading">
+          <img src="./assets/images/loading.gif" alt="modelLoading" class="loader-img">
+        </div>
+      </ng-template>
+    </nb-card-body>
+  </nb-card>
+</div>
+
+<div class="loader" *ngIf="loading">
+  <img src="./assets/images/loading.gif" alt="loading" class="loader-img">
+</div>

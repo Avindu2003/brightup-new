@@ -1,0 +1,19 @@
+<div class="container-fluid" *ngIf="!loading">
+<nb-card>
+  <nb-card-header>
+    Device Reset
+    <input #search class="search" type="text" placeholder="Search..." (input)="onSearch(search.value)">
+  </nb-card-header>
+
+  <nb-card-body>
+    <angular2-smart-table [settings]="settings" [source]="source" (deleteConfirm)="onResetConfirm($event)">
+    </angular2-smart-table>
+    <div class="loader" *ngIf="modelLoading">
+        <img src="./assets/images/loading.gif" alt="modelLoading" class="loader-img">
+    </div>
+  </nb-card-body>
+</nb-card>
+</div>
+<div class="loader" *ngIf="loading">
+    <img src="./assets/images/loading.gif" alt="loading" class="loader-img">
+</div>

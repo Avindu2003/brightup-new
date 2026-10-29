@@ -1,0 +1,30 @@
+<nb-card>
+  <nb-card-header class="d-flex justify-between align-center">
+    <span>Package Histoty</span>
+
+    <div class="d-flex gap-2">
+      <nb-select placeholder="Year" [(selected)]="selectedYear" (selectedChange)="filters()">
+        <nb-option *ngFor="let year of years" [value]="year">{{ year }}</nb-option>
+      </nb-select>
+
+      <nb-select placeholder="Stream" [(selected)]="selectedStream" (selectedChange)="filters()">
+        <nb-option *ngFor="let stream of streams" [value]="stream">{{ stream }}</nb-option>
+      </nb-select>
+
+      <nb-select placeholder="Medium" [(selected)]="selectedMedium" (selectedChange)="filters()">
+        <nb-option *ngFor="let medium of mediums" [value]="medium">{{ medium }}</nb-option>
+      </nb-select>
+
+      <nb-select placeholder="Grade" [(selected)]="selectedGrade" (selectedChange)="filters()">
+        <nb-option *ngFor="let grade of grades" [value]="grade">{{ grade }}</nb-option>
+      </nb-select>
+    </div>
+  </nb-card-header>
+  
+  <nb-card-body>
+    <angular2-smart-table [settings]="settings" [source]="data" (deleteConfirm)="onDeleteConfirm($event)">
+    </angular2-smart-table>
+  </nb-card-body>
+</nb-card>
+
+

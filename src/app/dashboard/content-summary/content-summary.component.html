@@ -1,0 +1,132 @@
+<nb-card>
+  <nb-card-header>Overview</nb-card-header>
+  
+  <nb-card-body>
+    <div class="d-flex justify-content-between gap-3">
+      
+      <nb-card class="summary-item-card">
+        <nb-card-body>
+          <div class="details">
+            <label class="label text-hint">Total Category</label>
+            <div class="h3">{{ totalCategory }}</div>
+          </div>
+          <div class="icon-box blue-bg">
+            <nb-icon icon="file-text-outline"></nb-icon>
+          </div>
+        </nb-card-body>
+      </nb-card>
+
+      <nb-card class="summary-item-card">
+        <nb-card-body>
+          <div class="details">
+            <label class="label text-hint">Total Stream</label>
+            <div class="h3">{{ totalStream }}</div>
+          </div>
+          <div class="icon-box green-bg">
+            <nb-icon icon="book-open-outline"></nb-icon>
+          </div>
+        </nb-card-body>
+      </nb-card>
+
+      <nb-card class="summary-item-card">
+        <nb-card-body>
+          <div class="details">
+            <label class="label text-hint">Total Medium</label>
+            <div class="h3">{{ totalMedium }}</div>
+          </div>
+          <div class="icon-box yellow-bg">
+            <nb-icon icon="layers-outline"></nb-icon>
+          </div>
+        </nb-card-body>
+      </nb-card>
+
+      <nb-card class="summary-item-card">
+        <nb-card-body>
+          <div class="details">
+            <label class="label text-hint">Total Subject</label>
+            <div class="h3">{{ totalSubject }}</div>
+          </div>
+          <div class="icon-box purple-bg">
+            <nb-icon icon="hard-drive-outline"></nb-icon>
+          </div>
+        </nb-card-body>
+      </nb-card>
+
+      <nb-card class="summary-item-card">
+        <nb-card-body>
+          <div class="details">
+            <label class="label text-hint">Total Chapter</label>
+            <div class="h3">{{ totalChapter }}</div>
+          </div>
+          <div class="icon-box red-bg">
+            <nb-icon icon="bookmark-outline"></nb-icon>
+          </div>
+        </nb-card-body>
+      </nb-card>
+
+    </div>
+  </nb-card-body>
+</nb-card>
+<nb-card>
+  <nb-card-header class="d-flex justify-content-between align-items-center">
+    <span>Question Statistics</span>
+
+    <div class="d-flex gap-2">
+
+      <nb-select placeholder="Category" 
+                [(selected)]="selectedCategory" 
+                (selectedChange)="onCategoryChange($event)">
+                
+        <nb-option *ngFor="let category of examCategoryList" [value]="category.examCategoryId">
+          {{ category.exam }}
+        </nb-option>
+      </nb-select>
+
+      <nb-select placeholder="Stream"  *ngIf="showStream"
+                [(selected)]="selectedStream" 
+                (selectedChange)="onStreamChange($event)">
+        <nb-option *ngFor="let stream of streamList" [value]="stream.streamId">
+          {{ stream.description }}
+        </nb-option>
+      </nb-select>
+
+      <nb-select placeholder="Semester" 
+                [(selected)]="selectedSemester" 
+                (selectedChange)="onSemesterChange($event)" *ngIf="showRelevantTo">
+        <nb-option *ngFor="let semester of semesterList" [value]="semester.code" >
+          {{ semester.nameSinhala }}
+        </nb-option>
+      </nb-select>
+
+
+
+      <nb-select placeholder="Subject" 
+                [(selected)]="selectedSubject" 
+                (selectedChange)="onSubjectChange($event)">
+        <nb-option *ngFor="let subject of subjectList" [value]="subject.subjectId">
+          {{ subject.subject }}
+        </nb-option>
+      </nb-select>
+
+      <nb-select placeholder="Chapter" 
+                [(selected)]="selectedChapter" 
+                (selectedChange)="onSubjectChapter($event)">
+        <nb-option *ngFor="let chapter of chapterList" [value]="chapter.chapterId">
+          Chapter {{ chapter.chapterNo }}
+        </nb-option>
+      </nb-select>
+
+      <nb-select placeholder="Medium" [(selected)]="selectedMedium" (selectedChange)="onMeadiumChange($event)">
+        <nb-option *ngFor="let medium of mediumList" [value]="medium.code">
+          {{ medium.description }}
+        </nb-option>
+      </nb-select>
+      <button type="button" class="btn btn-primary" (click)="filters()" [disabled]="!isChanged">Search</button>
+    </div>
+  </nb-card-header>
+
+  <nb-card-body *ngIf="tableList.length > 0">
+    <angular2-smart-table [settings]="settings" [source]="source">
+    </angular2-smart-table>
+  </nb-card-body>
+</nb-card>

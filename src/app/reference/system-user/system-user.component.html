@@ -1,0 +1,129 @@
+<div class="container-fluid" *ngIf="!loading">
+  <nb-card>
+    <nb-card-header>
+      <div class="header-container">
+        <div class="header-title">System User</div>
+        <div class="header-actions">
+          <input #search class="search" type="text" placeholder="Search..." (input)="onSearch(search.value)">
+          <button (click)="openWindowForm(addModal)" nbButton>Add New</button>
+        </div>
+      </div>
+    </nb-card-header>
+
+    <nb-card-body>
+      <angular2-smart-table [settings]="settings" [source]="source" (edit)="edit($event, editModal)"></angular2-smart-table> 
+
+      <ng-template #addModal>
+        <form [formGroup]="addForm" *ngIf="!modelLoading" (ngSubmit)="create()">
+          <div class="form-group">
+            <label for="name">Name</label>
+            <input type="text" formControlName="name" id="name" class="contact-name form-control"
+              placeholder="Enter Name"
+              [ngClass]="{'is-invalid': addForm.get('name').touched && addForm.get('name').invalid}">
+            <div class="errormsg" *ngIf="addForm.get('name')?.errors?.['required']&&addForm.get('name')?.touched">
+              Name is required.
+            </div>
+          </div>
+
+
+          <div class="form-group">
+            <label for="userName">Username</label>
+            <input type="text" formControlName="userName" id="userName" class="contact-userName form-control"
+              placeholder="Enter Username"
+              [ngClass]="{'is-invalid': addForm.get('userName').touched && addForm.get('userName').invalid}">
+            <div class="errormsg"
+              *ngIf="addForm.get('userName')?.errors?.['required']&&addForm.get('userName')?.touched">
+              Username is required.
+            </div>
+            <div *ngIf="addForm.touched" class="errormsg">
+              <div *ngIf="errorMessage">
+                {{ errorMessage }}
+              </div>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label for="status">Status</label>
+            <select formControlName="status" name="status" id="status" class="contact-name form-control"
+              [ngClass]="{'is-invalid': addForm.get('status').touched && addForm.get('status').invalid}">
+              <option value="null" selected disabled>- Select -</option>
+              <option value="A">Active</option>
+              <option value="I">Inactive</option>
+            </select>
+            <div class="errormsg" *ngIf="addForm.get('status')?.errors?.['required']&&addForm.get('status')?.touched">
+              Status is required.
+            </div>
+          </div>
+          <!-- <div class="form-group">
+            <label for="resetpassword">Reset Password</label>
+            <input type="checkbox" formControlName="resetpassword" id="resetpassword" class="contact-resetpassword form-control"
+              [ngClass]="{'is-invalid': addForm.get('resetpassword').touched && addForm.get('resetpassword').invalid}">
+          </div> -->
+
+          <div class="form-actions">
+            <button type="submit" class="btn btn-outline-success">Submit</button>
+            <button type="button" class="btn btn-outline-warning" (click)="dialogRef.close()">Cancel</button>
+          </div>
+        </form>
+        <div class="loader" *ngIf="modelLoading">
+          <img src="./assets/images/loading.gif" alt="modelLoading" class="loader-img">
+        </div>
+      </ng-template>
+
+
+      <ng-template #editModal>
+        <form [formGroup]="editForm" (ngSubmit)="update()" *ngIf="!modelLoading">
+          <div class="form-group">
+            <label for="name">Name</label>
+            <input type="text" formControlName="name" id="name" class="contact-name form-control"
+              (input)="onFieldChange()" placeholder="Enter Name"
+              [ngClass]="{'is-invalid': editForm.get('name').touched && editForm.get('name').invalid}">
+            <div class="errormsg" *ngIf="editForm.get('name')?.errors?.['required']&&editForm.get('name')?.touched">
+              Name is required.
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label for="userName">Username</label>
+            <input type="text" formControlName="userName" id="userName" class="contact-userName form-control"
+              placeholder="Enter Username"
+              [ngClass]="{'is-invalid': editForm.get('userName').touched && editForm.get('userName').invalid}">
+          </div>
+
+          <div class="form-group">
+            <label for="status">Status</label>
+            <select formControlName="status" name="status" id="status" class="contact-status form-control"
+              (change)="onFieldChange()"
+              [ngClass]="{'is-invalid': editForm.get('status').touched && editForm.get('status').invalid}">
+              <option value="A">Active</option>
+              <option value="I">Inactive</option>
+            </select>
+            <div class="errormsg" *ngIf="editForm.get('status')?.errors?.['required']&&editForm.get('status')?.touched">
+              Status is required.
+            </div>
+          </div>
+
+          <div class="form-check form-switch">
+            <input class="form-check-input" type="checkbox" role="switch" id="flexSwitchCheckDefault"
+            formControlName="resetPassword"
+            (change)="onFieldChange()"
+            >
+            <label class="form-check-label" for="flexSwitchCheckDefault">Reset Password</label>
+          </div>
+
+          <div class="form-actions">
+            <button type="submit" [disabled]="!isChanged" class="btn btn-outline-success">Update</button>
+            <button type="button" class="btn btn-outline-warning" (click)="dialogRef.close()">Cancel</button>
+          </div>
+        </form>
+        <div class="loader" *ngIf="modelLoading">
+          <img src="./assets/images/loading.gif" alt="modelLoading" class="loader-img">
+        </div>
+      </ng-template>
+    </nb-card-body>
+  </nb-card>
+</div>
+
+<div class="loader" *ngIf="loading">
+  <img src="./assets/images/loading.gif" alt="loading" class="loader-img">
+</div>

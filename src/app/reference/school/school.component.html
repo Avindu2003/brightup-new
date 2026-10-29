@@ -1,0 +1,111 @@
+<div class="container-fluid" *ngIf="!loading">
+  <nb-card>
+    <nb-card-header>
+      <div class="header-container">
+        <div class="header-title">School</div>
+        <div class="header-actions">
+          <input #search class="search" type="text" placeholder="Search..." (input)="onSearch(search.value)">
+          <button (click)="openWindowForm(formPopup)" nbButton *ngIf="!loading">Add New</button>
+        </div>
+      </div>
+    </nb-card-header>
+
+    <nb-card-body>
+      <angular2-smart-table [settings]="settings" [source]="source" (edit)="onEdit($event, formPopup)" *ngIf="!loading">
+      </angular2-smart-table>
+
+      <ng-template #formPopup>
+
+        <form [formGroup]="schoolForm" (ngSubmit)="onSubmit()" class="form" *ngIf="!modelLoading" >
+
+          <div class="form-group">
+              <label for="school">School Name:</label>
+              <input formControlName="description" nbInput id="description" type="text" placeholder="Enter School">
+              <span class="errormsg" *ngIf="schoolForm.get('description')?.errors?.['required'] && schoolForm.get('description')?.touched">
+                School name is required
+              </span>
+              <span class="errormsg" *ngIf="errorMessage">{{errorMessage}}</span>
+          </div>
+
+          <div class="form-group">
+              <label for="status">Status:</label>
+              <nb-select formControlName="status" placeholder="Select status" >
+                  <nb-option value="A">Active</nb-option>
+                  <nb-option value="I">Inactive</nb-option>
+              </nb-select>
+              <span class="errormsg" *ngIf="schoolForm.get('status')?.errors?.['required'] && schoolForm.get('status')?.touched">
+                Please select a status
+              </span>
+          </div>
+
+          <div class="form-actions">
+              <button type="submit" class="btn btn-outline-success" [disabled]="schoolForm.invalid || (isEditMode && !isChanged)">Submit</button>
+              <button type="reset" class="btn btn-outline-warning" (click)="windowRef.close()">Cancel</button>
+          </div>
+
+        </form>
+
+        <div class="loader" *ngIf="modelLoading">
+          <img src="./assets/images/loading.gif" alt="modelLoading" class="loader-img">
+        </div>
+
+      </ng-template>
+
+    </nb-card-body>
+
+  </nb-card>
+</div>
+
+<div class="loader" *ngIf="loading">
+    <img src="./assets/images/loading.gif" alt="loading" class="loader-img">
+</div>
+
+<!-- <nb-card>
+  <nb-card-header>
+    <div class="header-container">
+      <div class="header-title">School</div>
+      <div class="header-actions">
+        <input #search class="search" type="text" placeholder="Search..." (input)="onSearch(search.value)">
+        <button (click)="openWindowForm(formPopup)" nbButton>Add New</button>
+      </div>
+    </div>
+  </nb-card-header>
+
+  <nb-card-body>
+    <angular2-smart-table [settings]="settings" [source]="source" (edit)="onEdit($event, formPopup)">
+    </angular2-smart-table>
+
+    <ng-template #formPopup>
+      <form [formGroup]="schoolForm" (ngSubmit)="onSubmit()" class="form">
+
+        <div class="form-group">
+            <label for="school">School Name:</label>
+            <input formControlName="description" nbInput id="description" type="text" placeholder="Enter Exam Category">
+            <span class="errormsg" *ngIf="schoolForm.get('description')?.errors?.['required'] && schoolForm.get('description')?.touched">
+              School name is required
+            </span>
+            <span class="errormsg" *ngIf="errorMessage">{{errorMessage}}</span>
+        </div>
+
+        <div class="form-group">
+            <label for="status">Status:</label>
+            <nb-select formControlName="status" placeholder="Select status" >
+                <nb-option value="A">Active</nb-option>
+                <nb-option value="I">Inactive</nb-option>
+            </nb-select>
+            <span class="errormsg" *ngIf="schoolForm.get('status')?.errors?.['required'] && schoolForm.get('status')?.touched">
+              Please select a status
+            </span>
+        </div>
+
+        <div class="form-actions">
+            <button type="submit" class="btn btn-outline-success" [disabled]="schoolForm.invalid">Submit</button>
+            <button type="reset" class="btn btn-outline-warning" (click)="windowRef.close()">Cancel</button>
+        </div>
+
+      </form>
+    </ng-template>
+
+  </nb-card-body>
+
+</nb-card> -->

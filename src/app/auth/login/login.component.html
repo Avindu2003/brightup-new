@@ -1,0 +1,85 @@
+<div class="container-fluid vh-100" *ngIf="!loading">
+    <div class="row vh-100 d-flex justify-content-center align-items-center">
+        <div class="col-10">
+            <nb-card class="containercard">
+                <div class="row" class="picture1">
+                    <div class="col-md-8">
+                        <img mat-card-image src="./assets/images/brightupbo.png" alt="card1" class="img-fluid">
+                    </div>
+                    <div class="col-md-4">
+                        <div class="row">
+                            <div class="col-12">
+                                <h3 class="mb-4 mt-2 logtext">Login</h3>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-12">
+                                <form [formGroup]="form" (ngSubmit)="onSubmit()">
+                                    <div class="row">
+                                        <div class="col-md-12">
+                                            <label for="email">Username</label>
+                                            <input formControlName="username" type="text" class="form-control"
+                                                id="username" placeholder="Enter your username"
+                                                [ngClass]="{ 'is-invalid': form.get('username')?.invalid && form.get('username')?.touched }">
+                                            <span class="errormsg"
+                                                *ngIf="form.get('username')?.errors?.['required']&&form.get('username')?.touched">
+                                                This field is required.
+                                            </span>
+                                            <span class="errormsg" *ngIf="errorMessage">
+                                                {{ errorMessage }}
+                                            </span>
+                                            <!-- <span class="errormsg" *ngIf="form.get('email')?.errors?.['email']&&form.get('email')?.touched">
+                                                        Invaild email
+                                                    </span>   -->
+                                        </div>
+                                    </div>
+                                    <div class="row mt-2">
+                                        <div class="col-md-12">
+                                            <label for="password">Password</label>
+                                            <input formControlName="password" type="password" class="form-control"
+                                                id="password" placeholder="Enter your password"
+                                                [ngClass]="{ 'is-invalid': form.get('password')?.invalid && form.get('password')?.touched }">
+                                            <span class="errormsg"
+                                                *ngIf="form.get('password')?.errors?.['required']&&form.get('password')?.touched">
+                                                This field is required
+                                            </span>
+                                            <span class="errormsg"
+                                                *ngIf="form.get('password')?.errors?.['minlength'] && form.get('password')?.touched">
+                                                Password must be at least 4 characters long
+                                            </span>
+                                            <span class="errormsg" *ngIf="errorMessage">
+                                                {{ errorMessage }}
+                                            </span>
+                                        </div>
+                                    </div>
+
+                                    <div class="rememberrow">
+                                        <!-- <div class="form-check form-switch">
+                                            <input class="form-check-input" type="checkbox" id="flexSwitchCheckDefault"
+                                                formControlName="rememberMe" (change)="onFieldChange()">
+                                            <label class="form-check-label" for="flexSwitchCheckDefault">
+                                                Remember Me
+                                            </label>
+                                        </div> -->
+
+                                        <!-- <a class="forgotpass" routerLink="/auth/reset-password">Forgot Password?</a> -->
+
+                                    </div>
+
+
+                                    <div class="buttons">
+                                        <button type="submit" class="btn btn-primary mt-4 w-100">Login</button>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </nb-card>
+        </div>
+    </div>
+</div>
+
+<div class="loader" *ngIf="loading">
+    <img src="./assets/images/loading.gif" alt="loading" class="loader-img">
+</div>

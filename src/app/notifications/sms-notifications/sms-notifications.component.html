@@ -1,0 +1,206 @@
+<div class="container-fluid" *ngIf="!loading">
+    <nb-card>
+        <nb-card-header>
+            <div class="header-container">
+                <div class="header-title">SMS Notification</div>
+                <div class="header-actions">
+                    <input #search class="search" type="text" placeholder="Search..." (input)="onSearch(search.value)">
+                    <button (click)="openWindowForm(addModal)" nbButton *ngIf="!loading">Add New</button>
+                </div>
+            </div>
+        </nb-card-header>
+
+        <nb-card-body>
+            <angular2-smart-table [settings]="settings" [source]="source" *ngIf="!loading">
+            </angular2-smart-table>
+
+            <ng-template #addModal style="min-height: 800px;">
+                <form [formGroup]="addForm" (ngSubmit)="create()" *ngIf="!modelLoading">
+                    <div class="scrollable-form">
+
+                        <div class="form-group">
+                            <div class="row align-items-center">
+                                <div class="col-sm-6">
+                                    <label>User Type <span class="text-danger">*</span></label>
+                                </div>
+                                <div class="col-sm-6">
+                                    <div class="d-flex">
+                                        <div class="form-check mr-4">
+                                            <input class="form-check-input" 
+                                                type="radio" 
+                                                id="group"
+                                                formControlName="type" 
+                                                value="G"
+                                                (change)="onChangeUserType('group')">
+                                            <label class="form-check-label" for="group">Group</label>
+                                        </div>
+
+                                        <div class="form-check">
+                                            <input class="form-check-input" 
+                                                type="radio" 
+                                                id="bulk"
+                                                formControlName="type" 
+                                                value="B"
+                                                (change)="onChangeUserType('bulk')">
+                                            <label class="form-check-label" for="bulk">Bulk</label>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div *ngIf="addForm.value.type === 'G'">
+                            <div class="form-group">
+                                <div class="row align-items-center">
+                                <div class="col-6">
+                                    <label>Search Name / Mobile <span class="text-danger">*</span></label>
+                                </div>
+                                <div class="col-6">
+                                    <input 
+                                    type="text" 
+                                    class="form-control" 
+                                    [formControl]="myControl" 
+                                    list="userOptions" 
+                                    placeholder="Type to search..."
+                                    (change)="onUserSelected($event)"> 
+
+                                    <datalist id="userOptions">
+                                    <option *ngFor="let user of availableUsers" [value]="user.mobileNo + ' - ' + user.name">
+                                    </datalist>
+                                </div>
+                                </div>
+                            </div>
+
+                            <div class="selected-users-container mt-3" *ngIf="selectedUsers.length > 0">
+                                <label class="font-weight-bold d-block mb-2">Selected Users</label>
+                                
+                                <div class="d-flex flex-column gap-2"> 
+                                    <div *ngFor="let user of selectedUsers" class="user-chip d-flex justify-content-between align-items-center p-2 border rounded">
+                                        
+                                        <span class="user-info">{{ user.name }} ({{ user.mobileNo }})</span>
+                                        
+                                        <button type="button" class="btn btn-danger btn-sm remove-btn ml-2" (click)="removeUser(user.mobileNo)">
+                                            <i class="nb-close"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+
+                        <div *ngIf="addForm.value.type === 'B'">
+                            <!-- <div class="form-group">
+                                <div class="row align-items-center">
+                                    <div class="col-sm-9">
+                                        <div class="d-flex">
+                                            <div class="form-check mr-4">
+                                                <input class="form-check-input" type="radio" id="allStudent"
+                                                    formControlName="allStudent">
+                                                <label class="form-check-label" for="allStudent">All Student</label>
+                                            </div>
+                                            <div class="form-check">
+                                                <input class="form-check-input" type="radio" id="csv" 
+                                                    formControlName="csv">
+                                                <label class="form-check-label" for="csv">CSV</label>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div> -->
+                            <div class="form-group">
+                                <label for="examCategory">Exam Category </label>
+                                    <select formControlName="examCategory" name="examCategory" id="examCategory" class="contact-name form-control" (change)="examChanges($event)"
+                                    [ngClass]="{'is-invalid': addForm.get('examCategory').touched && addForm.get('examCategory').invalid}">
+                                    <option [ngValue]="null" selected="selected" >-- All Category --</option>
+                                    <option *ngFor="let category of examCategoryList" [value]="category.examCategoryId">
+                                    {{ category.code }}
+                                    </option>
+                                    </select>
+                            </div>
+                            <div>
+                                <div class="form-group" *ngIf="showStream">
+                                    <label for="stream">Stream </label>
+                                    <select formControlName="stream" name="stream" id="stream" class="contact-name form-control" (change)="streamChanges($event)"
+                                        [ngClass]="{'is-invalid': addForm.get('stream')?.touched && addForm.get('stream')?.invalid}">
+                                        <option [ngValue]="null" selected="selected">-- All Stream--</option>
+                                        <option *ngFor="let stream of streamList" [value]="stream.streamId">
+                                            {{ stream.nameSinhala }}
+                                        </option>
+                                    </select>
+                                    <!-- <div class="invalid-feedback">
+                                        <div *ngIf="addForm.get('streamId')?.hasError('required')">Stream is required</div>
+                                    </div> -->
+                                </div>
+                                <div class="form-group" *ngIf="showRelevantTo">
+                                    <label for="semester">Semester</label>
+                                    <select formControlName="semester" name="semester" id="semester" class="semester-name form-control"
+                                        (change)="semesterChanges($event)"
+                                        [ngClass]="{'is-invalid': addForm.get('semester')?.touched && addForm.get('semester')?.invalid}">
+                                        
+                                        <option [ngValue]="null" selected="selected">-- All Semester--</option>
+                                        
+                                        <option *ngFor="let semester of semesterList" [value]="semester.code">
+                                            {{ semester.nameSinhala }}
+                                        </option>
+                                    </select>
+                                </div>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="subject">Subject </label>
+                                <select formControlName="subject" name="subject" id="subject" class="contact-name form-control"
+                                    [ngClass]="{'is-invalid': addForm.get('subject')?.touched && addForm.get('subject')?.invalid}">
+                                    <option [ngValue]="null" selected="selected">-- All subject --</option>
+                                    <option *ngFor="let subject of subjectList" [value]="subject.subjectId">
+                                        {{ subject.subject }}
+                                    </option>
+                                </select>
+                                <!-- <div class="invalid-feedback">
+                                    <div *ngIf="addForm.get('subjectId')?.hasError('required')">Subject is required</div>
+                                </div> -->
+                            </div>
+
+                            <div class="form-group">
+                                <label for="medium">Medium </label>
+                                <select formControlName="medium" name="medium" id="medium" class="contact-name form-control"
+                                [ngClass]="{'is-invalid': addForm.get('medium').touched && addForm.get('medium').invalid}">
+                                    <option [ngValue]="null" selected="selected"  >-- All Medium --</option>
+                                    <option value="SIN">Sinhala</option>
+                                    <option value="ENG">English</option>
+                                </select>
+                                <!-- <div class="invalid-feedback">
+                                    <div *ngIf="addForm.get('medium')?.hasError('required')">Medium is required
+                                </div>
+                                </div> -->
+                            </div>
+
+                        </div>
+
+                        <div class="form-group mt-2">
+                            <label for="message">Message <span class="text-danger">*</span></label>
+                            <textarea formControlName="message" id="message" class="form-control" rows="4" placeholder="Enter Message"
+                                [ngClass]="{'is-invalid': addForm.get('message').touched && addForm.get('message').invalid}"></textarea>
+                            <div *ngIf="addForm.touched && !(addForm.get('message').valid)" class="invalid-feedback">
+                                <div *ngIf="addForm.get('message')?.hasError('required')">Message is required</div>
+                            </div>
+                        </div>
+
+                        <div class="form-actions mt-3">
+                            <button type="submit" class="btn btn-outline-success mr-2" [disabled]="addForm.invalid">Submit</button>
+                            <button type="button" class="btn btn-outline-warning" (click)="dialogRef.close()">Cancel</button>
+                        </div>
+
+                    </div>
+                </form>
+
+                <div class="loader" *ngIf="modelLoading">
+                    <img src="./assets/images/loading.gif" alt="modelLoading" class="loader-img">
+                </div>
+            </ng-template>
+        </nb-card-body>
+    </nb-card>
+</div>
+
+<div class="loader" *ngIf="loading">
+    <img src="./assets/images/loading.gif" alt="loading" class="loader-img">
+</div>

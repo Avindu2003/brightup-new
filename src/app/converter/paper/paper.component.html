@@ -1,0 +1,85 @@
+<div class="container mt-4">
+    <div class="card">
+        <div class="card-body">
+            <h5 class="card-title mb-2">Create New Paper</h5>
+            <form [formGroup]="questionForm" (ngSubmit)="submit()" class="container mt-4">
+                <div class="row form-group">
+                    <div class="col-md-6">
+                        <label for="gradeCategory" class="form-label">Grade Category</label>
+                        <select id="gradeCategory" class="form-control" formControlName="gradeCategory"
+                            (change)="loadSubjects()">
+                            <option value="" disabled>Select Grade Category</option>
+                            <option *ngFor="let category of gradeCategories" [value]="category">
+                                {{ category }}
+                            </option>
+                        </select>
+                    </div>
+
+                    <div class="col-md-6">
+                        <label for="questionType" class="form-label">Question Type</label>
+                        <select id="questionType" class="form-control" formControlName="questionType">
+                            <option value="" disabled>Select Question Type</option>
+                            <option *ngFor="let type of questionTypes" [value]="type">
+                                {{ type }}
+                            </option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="row form-group">
+                    <div class="col-md-6">
+                        <label for="subject" class="form-label">Subject</label>
+                        <select id="subject" class="form-control" formControlName="subject">
+                            <option value="" disabled>Select Subject</option>
+                            <option *ngFor="let subj of subjects" [value]="subj.code">
+                                {{ subj.subject }}
+                            </option>
+                        </select>
+                    </div>
+
+                    <div class="col-md-3">
+                        <label for="year" class="form-label">Year</label>
+                        <select id="year" class="form-control" formControlName="year">
+                            <option value="" disabled>Select Year</option>
+                            <option *ngFor="let y of years" [value]="y">{{ y }}</option>
+                        </select>
+                    </div>
+
+                    <div class="col-md-3">
+                        <label for="medium" class="form-label">Medium</label>
+                        <select id="medium" class="form-control" formControlName="medium">
+                            <option value="" disabled>Select Medium</option>
+                            <option *ngFor="let m of mediums" [value]="m.value">
+                                {{ m.label }}
+                            </option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="row mt-4">
+                    <div class="col-12 form-group">
+                        <input
+                        type="checkbox"
+                        id="toggleInput"
+                        name="inputToggle"
+                        (change)="onChange($event)"
+                        />
+                        <label for="toggleInput" class="ml-2">Switch to Text Mode</label>
+                    </div>
+                    <div class="col-md-3" *ngIf="!isTextMode">
+                        <label for="medium" class="form-label">Paper PDF</label>
+                        <input type="file" class="form-control" id="pdfFle" (change)="onSelectFile($event)"
+                            accept=".pdf">
+                    </div>
+                     <div class="col-md-8" *ngIf="isTextMode">
+                        <label for="medium" class="form-label" >Text</label>
+                        <textarea formControlName="text" class="form-control mb-2" rows="5">
+                        </textarea>
+                    </div>
+                    <div class="col-12 text-right">
+                        <button type="submit" class="btn btn-primary">Create Paper</button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>

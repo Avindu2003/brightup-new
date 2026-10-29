@@ -1,0 +1,51 @@
+.data-box {
+  display: block; 
+  width: 100%;   
+  padding: 0.375rem 0.75rem; 
+  min-height: 38px;  
+  box-sizing: border-box; 
+
+  background-color: #e9ecef; 
+  border: 1px solid #ced4da; 
+  border-radius: 0.25rem;   
+
+
+  font-size: 1rem;
+  font-weight: 400;
+  line-height: 1.5; 
+  color: #495057;   
+}
+
+.col-3 > label {
+  display: inline-block;
+  margin-bottom: 0.5rem;
+  font-weight: 500;
+}
+:host ::ng-deep {
+  // 3. Make parent rows (the ones with the expand/collapse toggle) bold
+  table tr:has(nb-tree-grid-row-toggle) {
+    font-weight: bold;
+  }
+
+  // 1. Center-align all table headers and data cells by default
+  table {
+    table th {
+      text-align: center;
+      vertical-align: middle;
+      font-size: 2.1rem; // <-- ADDED: Adjust this size as needed
+    }
+    td {
+      text-align: center;
+      vertical-align: middle; // Also good to add
+    }
+  }
+
+  // 2. Override the "subject" column (the first one) to be left-aligned
+  // This keeps the text aligned with the tree structure
+  table {
+    th.nb-column-subject,
+    td.nb-column-subject {
+      text-align: left;
+    }
+  }
+}

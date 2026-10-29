@@ -1,0 +1,56 @@
+<div class="container-fluid" *ngIf="!loading">
+  <nb-card>
+    <nb-card-header>
+      Package Activation
+      <input #search class="search" type="text" placeholder="Search..." (input)="onSearch(search.value)">
+    </nb-card-header>
+
+    <nb-card-body>
+      <angular2-smart-table [settings]="settings" [source]="source" (edit)="edit($event, modal)" *ngIf="!loading">
+      </angular2-smart-table>
+        <ng-template #modal>
+          <form [formGroup]="form" (ngSubmit)="submit()" *ngIf="!modelLoading">
+            <div class="scrollable-form">
+
+              <div class="form-group">
+                <label for="name">Name</label>
+                  <input type="text" formControlName="name" id="name" class="name form-control" >
+              </div>
+
+              <div class="form-group">
+                <label for="mobileNo">Mobile Number</label>
+                  <input type="text" formControlName="mobileNo" id="mobileNo" class="name form-control" >
+              </div>
+
+              <div class="form-group">
+                <label for="subscriptionPackageId">Activation Package  <span class="text-danger">*</span> </label>
+                  <select formControlName="subscriptionPackageId" name="subscriptionPackageId" id="subscriptionPackageId" class="contact-name form-control" (change)="onFieldChange()">
+                    <option [ngValue]="null" selected="selected" disabled="disabled" >-- Select Category --</option>
+                    <ng-container *ngFor="let subscription of SubscriptionPackageList">
+                      <option *ngIf="subscription.code !== 'BSC'" [ngValue]="subscription.subscriptionPackageId">
+                        {{ subscription.name }}
+                      </option>
+                    </ng-container>
+                  </select>
+              </div>
+
+              <div class="form-actions">
+                <button type="submit" class="btn btn-outline-success"
+                        [disabled]="!checkSubmit">
+                  Submit
+                </button>
+                <button type="button" class="btn btn-outline-warning"  (click)="dialogRef.close()">Cancel</button>
+              </div>
+            </div>
+          </form>
+          
+          <div class="loader" *ngIf="modelLoading">
+              <img src="./assets/images/loading.gif" alt="loading" class="loader-img">
+          </div>
+        </ng-template>
+    </nb-card-body>
+  </nb-card>
+</div>
+<div class="loader" *ngIf="loading">
+    <img src="./assets/images/loading.gif" alt="loading" class="loader-img">
+</div>

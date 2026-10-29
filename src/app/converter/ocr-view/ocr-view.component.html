@@ -1,0 +1,721 @@
+<div class="mt-4"
+    [ngClass]="{'container': view === 'papers', 'container-fluid': (view === 'form' || view === 'markdown')}">
+    <div class="row">
+        <div class="col-md-6 d-flex justify-content-start">
+            <button class="btn btn-outline-primary" (click)="viewPapers()" *ngIf="view !== 'papers'">View
+                Papers</button>
+        </div>
+       
+        <div class="col-md-6 d-flex justify-content-end">
+            <button class="btn btn-outline-primary mr-2" [routerLink]="'/converter/paper'">New Paper</button>
+            <button class="btn btn-outline-primary" (click)="openSettings()">Settings</button>
+        </div>
+    </div>
+</div>
+
+<div class="container mt-4" *ngIf="enteredPapers.length > 0 && view === 'papers'">
+    <div class="row">
+        <div class="col-md-4 mb-4" *ngFor="let paper of enteredPapers" (click)="viewPaper(paper)"
+            style="cursor: pointer;">
+            <div class="card paper-card h-100">
+                <div class="card-body">
+                    <h5 class="ocr-view-card mb-2">
+                        {{ paper.gradeCategory }} - {{ paper.subject }}
+                    </h5>
+                    <p class="card-text mb-1"><strong>Type:</strong> {{ paper.questionType }}</p>
+                    <p class="card-text mb-1"><strong>Year:</strong> {{ paper.year }}</p>
+                    <p class="card-text mb-0"><strong>Medium:</strong> {{ getMediumLabel(paper.medium) }}</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="container-fluid" *ngIf="view === 'form'">
+    
+    <div class="row">
+        <div class="col-md-12">
+            <!-- NAVIGATION BUTTONS -->
+            <div class="d-flex mt-4 mb-2">
+                <button (click)="prev()" [disabled]="currentIndex === 0"
+                    class="btn btn-secondary mr-2">Previous</button>
+                <button (click)="next()" [disabled]="currentIndex === forms.length - 1"
+                    class="btn btn-secondary mr-4">Next</button>
+                <button (click)="showPaperMarkdown()" class="btn btn-outline-primary mr-4">Show OCR Text</button>
+                <button class="btn btn-outline-success d-flex justify-self-end mr-4"
+                    (click)="saveQuestionsToLocalStorage()">Save Changes</button>
+                    <button (click)="insertQuestion()" class="btn btn-outline-primary mr-4">New Question</button>
+                    <button (click)="deleteQuestion()" class="btn btn-outline-danger mr-4">Delete Question</button>
+
+                    <!-- <button class="btn btn-outline-warning d-flex justify-self-end"
+                    (click)="submitAll()">Submit</button> -->
+                    <button class="btn btn-outline-success d-flex justify-self-end mr-4"
+                    (click)="image()">Excel</button>
+                    <!-- <button class="btn btn-outline-success d-flex justify-self-end mr-4"
+                    (click)="image()">Image</button> -->
+                    
+            </div>
+             <ngb-pagination [collectionSize]="forms.length * 10" [page]="currentIndex + 1" [maxSize]="16" [rotate]="true" [boundaryLinks]="true" (pageChange)="onPageChange($event)"></ngb-pagination>
+            <div *ngFor="let form of forms; let i = index">
+                <div class="row">
+                    <div class="col-md-10">
+                        <div *ngIf="i === currentIndex" class="card p-4">
+
+                            <h4>Question {{ i + 1 }}</h4>
+
+                            <button (click)="togglePreview()" class="btn btn-outline-secondary form-group">
+                                {{ isPreview ? 'Edit Mode' : 'Preview Mode' }}
+                            </button>
+
+                            <!-- EDIT MODE -->
+                            <div *ngIf="!isPreview">
+                                <form [formGroup]="form">
+
+                                    <!-- Question Texts & Images -->
+                                    <div *ngIf="form.get('questionText1Available')?.value">
+                                        <label>Question Text 1</label>
+                                        <div ngbDropdown class="d-inline-block mb-1 ml-1">
+                                            <button type="button" class="btn btn-outline-primary btn-sm"
+                                                ngbDropdownToggle>
+                                                <i class="fa fa-arrow-right"></i>
+                                            </button>
+                                            <div ngbDropdownMenu>
+                                                <button ngbDropdownItem (click)="transferValue('1', '2', i, 'qtext')">2</button>
+                                                <button ngbDropdownItem (click)="transferValue('1', '3', i, 'qtext')">3</button>
+                                            </div>
+                                        </div>
+                                        <textarea formControlName="questionText1" class="form-control mb-2"
+                                            (change)="convert($any(form.get('questionText1')))"></textarea>
+                                    </div>
+
+                                    <div *ngIf="form.get('questionImg1Available')?.value">
+                                        <label>Question Image 1</label>
+                                        <div ngbDropdown class="d-inline-block mb-1 ml-1">
+                                            <button type="button" class="btn btn-outline-primary btn-sm"
+                                                ngbDropdownToggle>
+                                                <i class="fa fa-arrow-right"></i>
+                                            </button>
+                                            <div ngbDropdownMenu>
+                                                <button ngbDropdownItem (click)="transferValue('1', '2', i, 'qimg')">2</button>
+                                                <button ngbDropdownItem (click)="transferValue('1', '3', i, 'qimg')">3</button>
+                                            </div>
+                                        </div>
+                                        <!-- <input formControlName="questionImg1" class="form-control mb-2" type="file" -->
+                                        <input class="form-control mb-2" type="file"
+                                            (change)="onSelectImageFile('questionImg1', i, $event)" />
+                                        <img *ngIf="questions[i]['questionImg1']" [src]="questions[i]['questionImg1']"
+                                            class="img-fluid form-group" />
+                                    </div>
+
+                                    <!-- Option Set 1 -->
+                                    <ng-container
+                                        *ngIf="form.get('option1ATextAvailable')?.value || form.get('option1AImgAvailable')?.value">
+                                        <h5>Option Set 1
+                                            <button (click)="transferValue('1', '2', i, 'option')"
+                                                class="btn btn-outline-secondary">
+                                                <i class="fa fa-arrow-right"></i>
+                                            </button>
+                                        </h5>
+                                        <div class="row">
+                                            <div class="col-md-6 form-group" *ngFor="let option of ['A','B','C','D','E']">
+                                                <label>Option 1{{option}} Text</label>
+                                                <textarea [formControlName]="'option1'+option+'Text'"
+                                                    class="form-control mb-2" (change)="convert($any(form.get('option1'+option+'Text')))"></textarea>
+
+                                                <label>Option 1{{option}} Image</label>
+                                                <!-- <input [formControlName]="'option1'+option+'Img'" -->
+                                                <input class="form-control mb-2" type="file"
+                                                    (change)="onSelectImageFile('questionImg1', i, $event)" />
+                                                <img *ngIf="questions[i]['option1'+option+'Img']"
+                                                    [src]="questions[i]['option1'+option+'Img']"
+                                                    class="img-fluid form-group" />
+                                            </div>
+                                        </div>
+                                    </ng-container>
+
+                                    <div *ngIf="form.get('questionImg2Available')?.value">
+                                        <label>Question Image 2</label>
+                                        <div ngbDropdown class="d-inline-block mb-1 ml-1">
+                                            <button type="button" class="btn btn-outline-primary btn-sm"
+                                                ngbDropdownToggle>
+                                                <i class="fa fa-arrow-right"></i>
+                                            </button>
+                                            <div ngbDropdownMenu>
+                                                <button ngbDropdownItem (click)="transferValue('2', '1', i, 'qimg')">1</button>
+                                                <button ngbDropdownItem (click)="transferValue('2', '3', i, 'qimg')">3</button>
+                                            </div>
+                                        </div>
+                                        <!-- <input formControlName="questionImg2" class="form-control mb-2" type="file" -->
+                                        <input class="form-control mb-2" type="file"
+                                            (change)="onSelectImageFile('questionImg2', i, $event)" />
+                                        <img *ngIf="questions[i]['questionImg2']" [src]="questions[i]['questionImg2']"
+                                            class="img-fluid form-group" />
+                                    </div>
+
+                                    <div *ngIf="form.get('questionText2Available')?.value">
+                                        <label>Question Text 2</label>
+                                        <div ngbDropdown class="d-inline-block mb-1 ml-1">
+                                            <button type="button" class="btn btn-outline-primary btn-sm"
+                                                ngbDropdownToggle>
+                                                <i class="fa fa-arrow-right"></i>
+                                            </button>
+                                            <div ngbDropdownMenu>
+                                                <button ngbDropdownItem (click)="transferValue('2', '1', i, 'qtext')">1</button>
+                                                <button ngbDropdownItem (click)="transferValue('2', '3', i, 'qtext')">3</button>
+                                            </div>
+                                        </div>
+                                        <textarea formControlName="questionText2" class="form-control mb-2"
+                                            (change)="convert($any(form.get('questionText2')))"></textarea>
+                                    </div>
+
+                                    <!-- Option Set 2 -->
+                                    <ng-container
+                                        *ngIf="form.get('option2ATextAvailable')?.value || form.get('option2AImgAvailable')?.value">
+                                        <h5>Option Set 2</h5>
+                                            <button (click)="transferValue('2', '1', i, 'option')"
+                                                class="btn btn-outline-secondary">
+                                                <i class="fa fa-arrow-right"></i>
+                                            </button>
+                                        <div class="row">
+                                            <div class="col-md-6 form-group" *ngFor="let option of ['A','B','C','D','E']">
+                                                <label>Option 2{{option}} Text</label>
+                                                <textarea [formControlName]="'option2'+option+'Text'"
+                                                    class="form-control mb-2" (change)="convert($any(form.get('option1'+option+'Text')))"></textarea>
+
+                                                <label>Option 2{{option}} Image</label>
+                                                <!-- <input [formControlName]="'option2'+option+'Img'" -->
+                                                <input class="form-control mb-2" type="file"
+                                                    (change)="onSelectImageFile('questionImg1', i, $event)" />
+                                                <img *ngIf="questions[i]['option2'+option+'Img']"
+                                                    [src]="questions[i]['option2'+option+'Img']"
+                                                    class="img-fluid form-group" />
+                                            </div>
+                                        </div>
+                                    </ng-container>
+
+                                    <div *ngIf="form.get('questionText3Available')?.value">
+                                        <label>Question Text 3</label>
+                                        <div ngbDropdown class="d-inline-block mb-1 ml-1">
+                                            <button type="button" class="btn btn-outline-primary btn-sm"
+                                                ngbDropdownToggle>
+                                                <i class="fa fa-arrow-right"></i>
+                                            </button>
+                                            <div ngbDropdownMenu>
+                                                <button ngbDropdownItem (click)="transferValue('3', '1', i, 'qtext')">1</button>
+                                                <button ngbDropdownItem (click)="transferValue('3', '2', i, 'qtext')">2</button>
+                                            </div>
+                                        </div>
+                                        <textarea formControlName="questionText3" class="form-control form-group" (change)="convert($any(form.get('questionText3')))"></textarea>
+                                    </div>
+
+                                    <div *ngIf="form.get('questionImg3Available')?.value">
+                                        <label>Question Image 3</label>
+                                        <div ngbDropdown class="d-inline-block mb-1 ml-1">
+                                            <button type="button" class="btn btn-outline-primary btn-sm"
+                                                ngbDropdownToggle>
+                                                <i class="fa fa-arrow-right"></i>
+                                            </button>
+                                            <div ngbDropdownMenu>
+                                                <button ngbDropdownItem (click)="transferValue('3', '1', i, 'qimg')">1</button>
+                                                <button ngbDropdownItem (click)="transferValue('3', '2', i, 'qimg')">2</button>
+                                            </div>
+                                        </div>
+                                        <!-- <input formControlName="questionImg3" class="form-control mb-2" type="file" -->
+                                        <input class="form-control mb-2" type="file"
+                                            (change)="onSelectImageFile('questionImg3', i, $event)" />
+                                        <img *ngIf="questions[i]['questionImg3']" [src]="questions[i]['questionImg3']"
+                                            class="img-fluid form-group" />
+                                    </div>
+
+                                    <!-- Answers -->
+                                    <h5>Answers</h5>
+                                    <div class="row">
+                                        <div class="col-md-12 form-group" *ngFor="let ans of [1,2,3,4,5]">
+                                            <div class="row">
+                                                <div class="col-md-6"
+                                                    *ngIf="form.get('answer'+ans+'TextAvailable')?.value">
+                                                    <label>Answer {{ans}} Text</label>
+                                                    <textarea [formControlName]="'answer'+ans+'Text'"
+                                                        class="form-control mb-2" (change)="convert($any(form.get('answer'+ans+'Text')))"></textarea>
+                                                </div>
+                                                <div class="col-md-6"
+                                                    *ngIf="form.get('answer'+ans+'ImgAvailable')?.value">
+                                                    <label>Answer {{ans}} Image</label>
+                                                    <!-- <input [formControlName]="'answer'+ans+'Img'" -->
+                                                    <input class="form-control mb-2" type="file"
+                                                        (change)="onSelectImageFile('answer'+ans+'Img', i, $event)" />
+                                                    <img *ngIf="questions[i]['answer'+ans+'Img']"
+                                                        [src]="questions[i]['answer'+ans+'Img']"
+                                                        class="img-fluid form-group" />
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                </form>
+                            </div>
+
+                            <!-- PREVIEW MODE -->
+                            <div *ngIf="isPreview">
+                                <div class="form-group">
+                                    <div *ngIf="form.get('questionText1Available')?.value">
+                                        <strong>{{form.get('questionText1')?.value}}</strong>
+                                    </div>
+
+                                    <img *ngIf="questions[i]['questionImg1']" [src]="questions[i]['questionImg1']"
+                                        class="img-fluid form-group" />
+                                    <button *ngIf="questions[i]['questionImg1']"
+                                        (click)="downloadImage(questions[i]['questionImg1'], i, 1)"
+                                        class="btn btn-outline-primary form-group">
+                                        <span class="fa fa-download"></span>
+                                    </button>
+
+                                    <ng-container
+                                        *ngIf="form.get('option1ATextAvailable')?.value || form.get('option1AImgAvailable')?.value">
+                                        <h5>Option Set 1</h5>
+                                        <ul class="list-group form-group">
+                                            <ng-container *ngFor="let option of ['A','B','C','D','E']">
+                                                <li class="list-group-item"
+                                                    *ngIf="form.get('option1'+option+'Text')?.value || questions[i]['option1'+option+'Img']">
+                                                    <div *ngIf="form.get('option1'+option+'Text')?.value">{{option}}:
+                                                        {{form.get('option1'+option+'Text')?.value}}</div>
+                                                    <img *ngIf="questions[i]['option1'+option+'Img']"
+                                                        [src]="questions[i]['option1'+option+'Img']"
+                                                        class="img-fluid form-group" />
+                                                </li>
+                                            </ng-container>
+
+                                        </ul>
+                                    </ng-container>
+
+                                    <img *ngIf="questions[i]['questionImg2']" [src]="questions[i]['questionImg2']"
+                                        class="img-fluid form-group" />
+                                    <button *ngIf="questions[i]['questionImg2']"
+                                        (click)="downloadImage(questions[i]['questionImg2'], i, 2)"
+                                        class="btn btn-outline-primary form-group">
+                                        <span class="fa fa-download"></span>
+                                    </button>
+
+                                    <div *ngIf="form.get('questionText2Available')?.value">
+                                        {{form.get('questionText2')?.value}}
+                                    </div>
+
+                                    <ng-container
+                                        *ngIf="form.get('option2ATextAvailable')?.value || form.get('option2AImgAvailable')?.value">
+                                        <h5>Option Set 2</h5>
+                                        <ul class="list-group form-group">
+                                            <ng-container *ngFor="let option of ['A','B','C','D','E']">
+                                                <li class="list-group-item"
+                                                    *ngIf="form.get('option2'+option+'Text')?.value || questions[i]['option2'+option+'Img']">
+                                                    <div *ngIf="form.get('option2'+option+'Text')?.value">{{option}}:
+                                                        {{form.get('option2'+option+'Text')?.value}}</div>
+                                                    <img *ngIf="questions[i]['option2'+option+'Img']"
+                                                        [src]="questions[i]['option2'+option+'Img']"
+                                                        class="img-fluid form-group" />
+                                                </li>
+                                            </ng-container>
+                                        </ul>
+                                    </ng-container>
+
+                                    <div *ngIf="form.get('questionText3Available')?.value">
+                                        {{form.get('questionText3')?.value}}
+                                    </div>
+
+                                    <img *ngIf="questions[i]['questionImg3']" [src]="questions[i]['questionImg3']"
+                                        class="img-fluid form-group" />
+                                    <button *ngIf="questions[i]['questionImg3']"
+                                        (click)="downloadImage(questions[i]['questionImg3'], i, 3)"
+                                        class="btn btn-outline-primary form-group">
+                                        <span class="fa fa-download"></span>
+                                    </button>
+                                </div>
+
+                                <h5>Answers</h5>
+                                <ul class="list-group">
+                                    <ng-container *ngFor="let ans of [1,2,3,4,5]">
+                                        <li class="list-group-item"
+                                            *ngIf="form.get('answer'+ans+'Text')?.value || questions[i]['answer'+ans+'Img']">
+                                            <div *ngIf="form.get('answer'+ans+'Text')?.value">Answer {{ans}}:
+                                                {{form.get('answer'+ans+'Text')?.value}}
+                                            </div>
+                                            <img *ngIf="questions[i]['answer'+ans+'Img']"
+                                                [src]="questions[i]['answer'+ans+'Img']" class="img-fluid form-group" />
+                                        </li>
+                                    </ng-container>
+                                </ul>
+
+                            </div>
+
+                        </div>
+                    </div>
+                    <div class="col-md-2" [formGroup]="form">
+                        <div class="card" *ngIf="i === currentIndex" style="padding-top: 1rem;">
+                            <div class="col-md-12">
+                                <div class="row">
+                                    <div class="col-md-12">
+                                        <input type="checkbox" id="" class="mr-2"
+                                            formControlName="questionText1Available"> <label for="">Question Text
+                                            1</label>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-md-12">
+                                        <input type="checkbox" id="" class="mr-2"
+                                            formControlName="questionImg1Available"> <label for="">Question Img
+                                            1</label>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-md-12">
+                                        <input type="checkbox" id="" class="mr-2"
+                                            formControlName="option1ATextAvailable"> <label for="">Option 1 A
+                                            Text</label>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-md-12">
+                                        <input type="checkbox" id="" class="mr-2"
+                                            formControlName="option1AImgAvailable"> <label for="">Option 1 A
+                                            Img</label>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-md-12">
+                                        <input type="checkbox" id="" class="mr-2"
+                                            formControlName="option1BTextAvailable"> <label for="">Option 1 B
+                                            Text</label>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-md-12">
+                                        <input type="checkbox" id="" class="mr-2"
+                                            formControlName="option1BImgAvailable"> <label for="">Option 1 B
+                                            Img</label>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-md-12">
+                                        <input type="checkbox" id="" class="mr-2"
+                                            formControlName="option1CTextAvailable"> <label for="">Option 1 C
+                                            Text</label>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-md-12">
+                                        <input type="checkbox" id="" class="mr-2"
+                                            formControlName="option1CImgAvailable"> <label for="">Option 1 C
+                                            Img</label>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-md-12">
+                                        <input type="checkbox" id="" class="mr-2"
+                                            formControlName="option1DTextAvailable"> <label for="">Option 1 D
+                                            Text</label>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-md-12">
+                                        <input type="checkbox" id="" class="mr-2"
+                                            formControlName="option1DImgAvailable"> <label for="">Option 1 D
+                                            Img</label>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-md-12">
+                                        <input type="checkbox" id="" class="mr-2"
+                                            formControlName="option1ETextAvailable"> <label for="">Option 1 E
+                                            Text</label>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-md-12">
+                                        <input type="checkbox" id="" class="mr-2"
+                                            formControlName="option1EImgAvailable"> <label for="">Option 1 E
+                                            Img</label>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-md-12">
+                                        <input type="checkbox" id="" class="mr-2"
+                                            formControlName="questionImg2Available"> <label for="">Question Img
+                                            2</label>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-md-12">
+                                        <input type="checkbox" id="" class="mr-2"
+                                            formControlName="questionText2Available"> <label for="">Question Text
+                                            2</label>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-md-12">
+                                        <input type="checkbox" id="" class="mr-2"
+                                            formControlName="option2ATextAvailable"> <label for="">Option 2 A
+                                            Text</label>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-md-12">
+                                        <input type="checkbox" id="" class="mr-2"
+                                            formControlName="option2AImgAvailable"> <label for="">Option 2 A
+                                            Img</label>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-md-12">
+                                        <input type="checkbox" id="" class="mr-2"
+                                            formControlName="option2BTextAvailable"> <label for="">Option 2 B
+                                            Text</label>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-md-12">
+                                        <input type="checkbox" id="" class="mr-2"
+                                            formControlName="option2BImgAvailable"> <label for="">Option 2 B
+                                            Img</label>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-md-12">
+                                        <input type="checkbox" id="" class="mr-2"
+                                            formControlName="option2CTextAvailable"> <label for="">Option 2 C
+                                            Text</label>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-md-12">
+                                        <input type="checkbox" id="" class="mr-2"
+                                            formControlName="option2CImgAvailable"> <label for="">Option 2 C
+                                            Img</label>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-md-12">
+                                        <input type="checkbox" id="" class="mr-2"
+                                            formControlName="option2DTextAvailable"> <label for="">Option 2 D
+                                            Text</label>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-md-12">
+                                        <input type="checkbox" id="" class="mr-2"
+                                            formControlName="option2DImgAvailable"> <label for="">Option 2 D
+                                            Img</label>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-md-12">
+                                        <input type="checkbox" id="" class="mr-2"
+                                            formControlName="option2ETextAvailable"> <label for="">Option 2 E
+                                            Text</label>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-md-12">
+                                        <input type="checkbox" id="" class="mr-2"
+                                            formControlName="option2EImgAvailable"> <label for="">Option 2 E
+                                            Img</label>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-md-12">
+                                        <input type="checkbox" id="" class="mr-2"
+                                            formControlName="questionText3Available"> <label for="">Question Text
+                                            3</label>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-md-12">
+                                        <input type="checkbox" id="" class="mr-2"
+                                            formControlName="questionImg3Available"> <label for="">Question Img
+                                            3</label>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-md-12">
+                                        <input type="checkbox" id="" class="mr-2"
+                                            formControlName="answer1TextAvailable"> <label for="">Answer 1 Text</label>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-md-12">
+                                        <input type="checkbox" id="" class="mr-2" formControlName="answer1ImgAvailable">
+                                        <label for="">Answer 1 Img</label>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-md-12">
+                                        <input type="checkbox" id="" class="mr-2"
+                                            formControlName="answer2TextAvailable"> <label for="">Answer 2 Text</label>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-md-12">
+                                        <input type="checkbox" id="" class="mr-2" formControlName="answer2ImgAvailable">
+                                        <label for="">Answer 2 Img</label>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-md-12">
+                                        <input type="checkbox" id="" class="mr-2"
+                                            formControlName="answer3TextAvailable"> <label for="">Answer 3 Text</label>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-md-12">
+                                        <input type="checkbox" id="" class="mr-2" formControlName="answer3ImgAvailable">
+                                        <label for="">Answer 3 Img</label>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-md-12">
+                                        <input type="checkbox" id="" class="mr-2"
+                                            formControlName="answer4TextAvailable"> <label for="">Answer 4 Text</label>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-md-12">
+                                        <input type="checkbox" id="" class="mr-2" formControlName="answer4ImgAvailable">
+                                        <label for="">Answer 4 Img</label>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-md-12">
+                                        <input type="checkbox" id="" class="mr-2"
+                                            formControlName="answer5TextAvailable"> <label for="">Answer 5 Text</label>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-md-12">
+                                        <input type="checkbox" id="" class="mr-2" formControlName="answer5ImgAvailable">
+                                        <label for="">Answer 5 Img</label>
+                                    </div>
+                                </div>
+                                <!-- <div class="row">
+                                    <div class="col-md-12">
+                                        <input type="checkbox" id="" class="mr-2"
+                                            formControlName="questionImg1Available"> <label for="">Correct Answer</label>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-md-12">
+                                        <input type="checkbox" id="" class="mr-2"
+                                            formControlName="questionImg1Available"> <label for="">Answer 2 Img</label>
+                                    </div>
+                                </div> -->
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+<div class="container-fluid mt-4" *ngIf="view === 'markdown'">
+
+    <div class="row">
+        <div class="col-md-12">
+            <div class="card p-4">
+                <textarea [(ngModel)]="completeMarkdown" class="markdown-text form-control mb-2"></textarea>
+                <!-- <textarea [(ngModel)]="completeMarkdown" class="form-control mb-2" (change)="convert($any(form.get('questionText1')))"></textarea> -->
+            </div>
+        </div>
+        <div class="col-md-12 d-flex justify-content-end">
+            <button (click)="updateMarkdown()" class="btn btn-outline-primary mr-2">Update</button>
+            <button (click)="cancelMarkdown()" class="btn btn-outline-primary">Cancel</button>
+        </div>
+    </div>
+
+</div>
+
+<!-- <ng-template #content let-offcanvas>
+    <div class="offcanvas-header">
+        <h4 class="offcanvas-title">Settings</h4>
+        <button type="button" class="btn-close" aria-label="Close" (click)="offcanvas.dismiss('Cross click')"></button>
+    </div>
+    <div class="offcanvas-body">
+        <div class="container">
+            <div class="row form-group">
+                <div class="col-md-6">
+                    <label for="category" class="form-label">Question Identifier</label>
+                    <select id="category" class="form-control" [(ngModel)]="questionIdentifier">
+                        <option value="" disabled>Select Identifier</option>
+                        <option [value]="identifier" *ngFor="let identifier of questionIdentifiers">{{identifier}}
+                        </option>
+                    </select>
+                </div>
+                <div class="col-md-6">
+                    <label for="category" class="form-label">Option Identifier</label>
+                    <select id="category" class="form-control" [(ngModel)]="optionIdentifier">
+                        <option value="" disabled>Select Identifier</option>
+                        <option [value]="identifier" *ngFor="let identifier of optionIdentifiers">{{identifier}}
+                        </option>
+                    </select>
+                </div>
+                <div class="col-md-6">
+                    <label for="category" class="form-label">Answer Identifier</label>
+                    <select id="category" class="form-control" [(ngModel)]="answerIdentifier">
+                        <option value="" disabled>Select Identifier</option>
+                        <option [value]="identifier" *ngFor="let identifier of answerIdentifiers">{{identifier}}
+                        </option>
+                    </select>
+                </div>
+
+            </div>
+            <div class="row">
+                <div class="col-md-12 d-flex justify-content-end">
+                    <button class="btn btn-outline-primary" (click)="saveSettings()">Save</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</ng-template> -->
+
+<ng-template #settingsTemplate let-windowRef="windowRef">
+            <div class="container-fluid">
+                <div class="form-group row">
+                    <div class="col-12">
+                        <label for="questionIdentifier" class="font-weight-bold">Question Identifier</label>
+                        <select id="questionIdentifier" class="form-control" [(ngModel)]="questionIdentifier">
+                            <option value="" disabled>Select Identifier</option>
+                            <option [value]="identifier" *ngFor="let identifier of questionIdentifiers">
+                                {{identifier}}
+                            </option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="form-group row">
+                    <div class="col-12">
+                        <label for="optionIdentifier" class="font-weight-bold">Option Identifier</label>
+                        <select id="optionIdentifier" class="form-control" [(ngModel)]="optionIdentifier">
+                            <option value="" disabled>Select Identifier</option>
+                            <option [value]="identifier" *ngFor="let identifier of optionIdentifiers">
+                                {{identifier}}
+                            </option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="form-group row">
+                    <div class="col-12">
+                        <label for="answerIdentifier" class="font-weight-bold">Answer Identifier</label>
+                        <select id="answerIdentifier" class="form-control" [(ngModel)]="answerIdentifier">
+                            <option value="" disabled>Select Identifier</option>
+                            <option [value]="identifier" *ngFor="let identifier of answerIdentifiers">
+                                {{identifier}}
+                            </option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+            <div class="d-flex justify-content-end">
+                <button class="btn btn-outline-success mr-2" (click)="saveSettings(windowRef)">Save</button>
+                <button type="button" class="btn btn-outline-warning"  (click)="dialogRef.close()">Cancel</button>
+            </div>
+</ng-template>

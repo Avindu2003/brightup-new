@@ -1,0 +1,482 @@
+<!-- <div class="container-fluid" *ngIf="!loading">
+  <nb-card>
+    <nb-card-header>
+      <div class="header-container">
+        <div class="header-title">Subscription Packages</div>
+        <div class="header-actions">
+          <input #search class="search" type="text" placeholder="Search..." (input)="onSearch(search.value)">
+          <button (click)="openWindowForm(formPopup)" nbButton *ngIf="!loading">Add New</button>
+        </div>
+      </div>
+    </nb-card-header>
+
+    <nb-card-body>
+      <angular2-smart-table [settings]="settings" [source]="source" (edit)="onEdit($event, formPopup)" *ngIf="!loading">
+      </angular2-smart-table>
+
+      <ng-template #formPopup>
+
+        <form [formGroup]="subscriptionPackageForm" (ngSubmit)="onSubmit()" class="form" *ngIf="!modelLoading" >
+
+          <div class="scrollable-form">
+
+            <div class="modal-body">
+
+              <div class="form-row">
+                <div class="form-group col-md-6">
+                    <label for="package">Code</label>
+                    <input formControlName="code" nbInput id="code" type="text" placeholder="Enter Code" (input)="onFieldChange()">
+                    <span class="errormsg" *ngIf="subscriptionPackageForm.get('code')?.errors?.['required'] && subscriptionPackageForm.get('code')?.touched">
+                      Code is required
+                    </span>
+                    <span class="errormsg" *ngIf="errorMessage">{{errorMessage}}</span>
+                    <span class="errormsg" *ngIf="subscriptionPackageForm.get('code')?.errors?.['pattern']">Use only 3 capital letters.</span>
+                </div>
+
+                <div class="form-group col-md-6">
+                    <label for="package">Package Name</label>
+                    <input formControlName="name" nbInput id="name" type="text" placeholder="Enter Package Name" (input)="onFieldChange()">
+                    <span class="errormsg" *ngIf="subscriptionPackageForm.get('name')?.errors?.['required'] && subscriptionPackageForm.get('name')?.touched">
+                      Package name is required
+                    </span>
+                    <span class="errormsg" *ngIf="errorMessage">{{errorMessage}}</span>
+                    <span class="errormsg" *ngIf="subscriptionPackageForm.get('name')?.errors?.['pattern']">Invalid input.</span>
+                </div>
+              </div>
+
+              <div class="form-row">
+                <div class="form-group col-md-6">
+                    <label for="package">Activation Period</label>
+                    <input formControlName="activationPeriod" nbInput id="activationPeriod" type="text" placeholder="Enter Activation Period" (input)="onFieldChange()">
+                    <span class="errormsg" *ngIf="subscriptionPackageForm.get('activationPeriod')?.errors?.['required'] && subscriptionPackageForm.get('activationPeriod')?.touched">
+                      Activation Period is required
+                    </span>
+                    <span class="errormsg" *ngIf="errorMessage">{{errorMessage}}</span>
+                    <span class="errormsg" *ngIf="subscriptionPackageForm.get('activationPeriod')?.errors?.['pattern']">Use only numbers.</span>
+                </div>
+
+                <div class="form-group col-md-6">
+                    <label for="package">Test Count</label>
+                    <input formControlName="testCount" nbInput id="testCount" type="text" placeholder="Enter Test Count" (input)="onFieldChange()">
+                    <span class="errormsg" *ngIf="subscriptionPackageForm.get('testCount')?.errors?.['required'] && subscriptionPackageForm.get('testCount')?.touched">
+                      Test Count is required
+                    </span>
+                    <span class="errormsg" *ngIf="errorMessage">{{errorMessage}}</span>
+                    <span class="errormsg" *ngIf="subscriptionPackageForm.get('testCount')?.errors?.['pattern']">Use only numbers.</span>
+                </div>
+              </div>
+
+              <div class="form-row">
+                <div class="form-group col-md-6">
+                    <label for="package">Attempt Count</label>
+                    <input formControlName="attemptCount" nbInput id="attemptCount" type="text" placeholder="Enter Attempt Count" (input)="onFieldChange()">
+                    <span class="errormsg" *ngIf="subscriptionPackageForm.get('attemptCount')?.errors?.['required'] && subscriptionPackageForm.get('attemptCount')?.touched">
+                      Attempt Count is required
+                    </span>
+                    <span class="errormsg" *ngIf="errorMessage">{{errorMessage}}</span>
+                    <span class="errormsg" *ngIf="subscriptionPackageForm.get('attemptCount')?.errors?.['pattern']">Use only numbers.</span>
+                </div>
+
+                <div class="form-group col-md-6">
+                    <label for="package">Sequence</label>
+                    <input formControlName="sequence" nbInput id="sequence" type="text" placeholder="Enter Sequence" (input)="onFieldChange()">
+                    <span class="errormsg" *ngIf="subscriptionPackageForm.get('sequence')?.errors?.['required'] && subscriptionPackageForm.get('sequence')?.touched">
+                      Attempt Count is required
+                    </span>
+                    <span class="errormsg" *ngIf="errorMessage">{{errorMessage}}</span>
+                    <span class="errormsg" *ngIf="subscriptionPackageForm.get('sequence')?.errors?.['pattern']">Use only numbers.</span>
+                </div>
+              </div>
+
+              <div class="form-row">
+                <div class="form-group col-md-6">
+                    <label for="package">Primary Color</label>
+                    <input formControlName="primaryColor" nbInput id="primaryColor" type="text" placeholder="Enter Primary Color" (input)="onFieldChange()">
+                    <span class="errormsg" *ngIf="subscriptionPackageForm.get('primaryColor')?.errors?.['required'] && subscriptionPackageForm.get('primaryColor')?.touched">
+                      Primary Color is required
+                    </span>
+                    <span class="errormsg" *ngIf="errorMessage">{{errorMessage}}</span>
+                    <span class="errormsg" *ngIf="subscriptionPackageForm.get('primaryColor')?.errors?.['pattern']">Use only 6 characters.(<i>including A-F and 0-9</i>)</span>
+                </div>
+
+                <div class="form-group col-md-6">
+                    <label for="package">Secondary Color</label>
+                    <input formControlName="secondaryColor" nbInput id="secondaryColor" type="text" placeholder="Enter Secondary Color" (input)="onFieldChange()">
+                    <span class="errormsg" *ngIf="subscriptionPackageForm.get('secondaryColor')?.errors?.['required'] && subscriptionPackageForm.get('secondaryColor')?.touched">
+                      Secondary Color is required
+                    </span>
+                    <span class="errormsg" *ngIf="errorMessage">{{errorMessage}}</span>
+                    <span class="errormsg" *ngIf="subscriptionPackageForm.get('secondaryColor')?.errors?.['pattern']">Use only 6 characters.(<i>including A-F and 0-9</i>)</span>
+                </div>
+              </div>
+
+              <div class="form-row">
+                <div class="form-group col-md-6">
+                    <label for="package">Price</label>
+                    <input formControlName="price" nbInput id="price" type="text" placeholder="Enter Price" (input)="onFieldChange()">
+                    <span class="errormsg" *ngIf="subscriptionPackageForm.get('price')?.errors?.['required'] && subscriptionPackageForm.get('price')?.touched">
+                      Price is required
+                    </span>
+                    <span class="errormsg" *ngIf="errorMessage">{{errorMessage}}</span>
+                    <span class="errormsg" *ngIf="subscriptionPackageForm.get('price')?.errors?.['pattern']">Invalid input.</span>
+                </div>
+
+                <div class="form-group col-md-6">
+                    <label for="status">Status</label>
+                    <nb-select formControlName="status" placeholder="Select status" (input)="onFieldChange()">
+                        <nb-option value="A">Active</nb-option>
+                        <nb-option value="I">Inactive</nb-option>
+                    </nb-select>
+                    <span class="errormsg" *ngIf="subscriptionPackageForm.get('status')?.errors?.['required'] && subscriptionPackageForm.get('status')?.touched">
+                      Please select a status
+                    </span>
+                </div>
+              </div>
+
+            </div>
+
+          </div>
+
+          <div class="modal-footer">
+              <button type="submit" class="btn btn-outline-success form-actions" [disabled]="subscriptionPackageForm.invalid || (isEditMode && !isChanged)">Submit</button>
+              <button type="reset" class="btn btn-outline-warning form-actions" (click)="windowRef.close()">Cancel</button>
+          </div>
+
+        </form>
+
+        <div class="loader" *ngIf="loading">
+            <img src="./assets/images/loading.gif" alt="loading" class="loader-img">
+        </div>
+
+      </ng-template>
+
+    </nb-card-body>
+
+  </nb-card>
+</div>
+
+<div class="loader" *ngIf="loading">
+    <img src="./assets/images/loading.gif" alt="loading" class="loader-img">
+</div> -->
+
+<!-- <div class="container-fluid" *ngIf="!loading">
+  <nb-card>
+    <nb-card-header>
+      <div class="header-container">
+        <div class="header-title">Subscription Packages</div>
+        <div class="header-actions">
+          <input #search class="search" type="text" placeholder="Search..." (input)="onSearch(search.value)">
+          <button (click)="openWindowForm(formPopup)" nbButton *ngIf="!loading">Add New</button>
+        </div>
+      </div>
+    </nb-card-header>
+
+    <nb-card-body>
+      <angular2-smart-table [settings]="settings" [source]="source" (edit)="onEdit($event, formPopup)" *ngIf="!loading">
+      </angular2-smart-table>
+
+      <ng-template #formPopup>
+
+        <form [formGroup]="subscriptionPackageForm" (ngSubmit)="onSubmit()" class="form" *ngIf="!modelLoading" >
+
+          <div class="scrollable-form">
+
+            <div class="form-row">
+              <div class="form-group col-md-6">
+                  <label for="package">Code</label>
+                  <input formControlName="code" nbInput id="code" type="text" placeholder="Enter Code" (input)="onFieldChange()" maxlength="3">
+                  <span class="errormsg" *ngIf="subscriptionPackageForm.get('code')?.errors?.['required'] && subscriptionPackageForm.get('code')?.touched">
+                    Code is required
+                  </span>
+                  <span class="errormsg" *ngIf="errorMessage">{{errorMessage}}</span>
+                  <span class="errormsg" *ngIf="subscriptionPackageForm.get('code')?.errors?.['pattern']">Use only 3 capital letters.</span>
+              </div>
+
+              <div class="form-group col-md-6">
+                  <label for="package">Package Name</label>
+                  <input formControlName="name" nbInput id="name" type="text" placeholder="Enter Package Name" (input)="onFieldChange()">
+                  <span class="errormsg" *ngIf="subscriptionPackageForm.get('name')?.errors?.['required'] && subscriptionPackageForm.get('name')?.touched">
+                    Package name is required
+                  </span>
+                  <span class="errormsg" *ngIf="errorMessage">{{errorMessage}}</span>
+                  <span class="errormsg" *ngIf="subscriptionPackageForm.get('name')?.errors?.['pattern']">Invalid input.</span>
+              </div>
+            </div>
+
+            <div class="form-row">
+              <div class="form-group col-md-6">
+                  <label for="package">Activation Period</label>
+                  <input formControlName="activationPeriod" nbInput id="activationPeriod" type="text" placeholder="Enter Activation Period" (input)="onFieldChange()" maxlength="2">
+                  <span class="errormsg" *ngIf="subscriptionPackageForm.get('activationPeriod')?.errors?.['required'] && subscriptionPackageForm.get('activationPeriod')?.touched">
+                    Activation Period is required
+                  </span>
+                  <span class="errormsg" *ngIf="errorMessage">{{errorMessage}}</span>
+                  <span class="errormsg" *ngIf="subscriptionPackageForm.get('activationPeriod')?.errors?.['pattern']">Use only numbers.</span>
+              </div>
+
+              <div class="form-group col-md-6">
+                  <label for="package">Test Count</label>
+                  <input formControlName="testCount" nbInput id="testCount" type="text" placeholder="Enter Test Count" (input)="onFieldChange()" maxlength="6">
+                  <span class="errormsg" *ngIf="subscriptionPackageForm.get('testCount')?.errors?.['required'] && subscriptionPackageForm.get('testCount')?.touched">
+                    Test Count is required
+                  </span>
+                  <span class="errormsg" *ngIf="errorMessage">{{errorMessage}}</span>
+                  <span class="errormsg" *ngIf="subscriptionPackageForm.get('testCount')?.errors?.['pattern']">Use only numbers.</span>
+              </div>
+            </div>
+
+            <div class="form-row">
+              <div class="form-group col-md-6">
+                  <label for="package">Attempt Count</label>
+                  <input formControlName="attemptCount" nbInput id="attemptCount" type="text" placeholder="Enter Attempt Count" (input)="onFieldChange()" maxlength="6">
+                  <span class="errormsg" *ngIf="subscriptionPackageForm.get('attemptCount')?.errors?.['required'] && subscriptionPackageForm.get('attemptCount')?.touched">
+                    Attempt Count is required
+                  </span>
+                  <span class="errormsg" *ngIf="errorMessage">{{errorMessage}}</span>
+                  <span class="errormsg" *ngIf="subscriptionPackageForm.get('attemptCount')?.errors?.['pattern']">Use only numbers.</span>
+              </div>
+
+              <div class="form-group col-md-6">
+                  <label for="package">Sequence</label>
+                  <input formControlName="sequence" nbInput id="sequence" type="text" placeholder="Enter Sequence" (input)="onFieldChange()" maxlength="5">
+                  <span class="errormsg" *ngIf="subscriptionPackageForm.get('sequence')?.errors?.['required'] && subscriptionPackageForm.get('sequence')?.touched">
+                    Attempt Count is required
+                  </span>
+                  <span class="errormsg" *ngIf="errorMessage">{{errorMessage}}</span>
+                  <span class="errormsg" *ngIf="subscriptionPackageForm.get('sequence')?.errors?.['pattern']">Use only numbers.</span>
+              </div>
+            </div>
+
+            <div class="form-row">
+              <div class="form-group col-md-6">
+                  <label for="package">Primary Color</label>
+                  <input formControlName="primaryColor" nbInput id="primaryColor" type="text" placeholder="Enter Primary Color" (input)="onFieldChange()" maxlength="6">
+                  <span class="errormsg" *ngIf="subscriptionPackageForm.get('primaryColor')?.errors?.['required'] && subscriptionPackageForm.get('primaryColor')?.touched">
+                    Primary Color is required
+                  </span>
+                  <span class="errormsg" *ngIf="errorMessage">{{errorMessage}}</span>
+                  <span class="errormsg" *ngIf="subscriptionPackageForm.get('primaryColor')?.errors?.['pattern']">Use only 6 characters.(<i>including A-F and 0-9</i>)</span>
+              </div>
+
+              <div class="form-group col-md-6">
+                  <label for="package">Secondary Color</label>
+                  <input formControlName="secondaryColor" nbInput id="secondaryColor" type="text" placeholder="Enter Secondary Color" (input)="onFieldChange()" maxlength="6">
+                  <span class="errormsg" *ngIf="subscriptionPackageForm.get('secondaryColor')?.errors?.['required'] && subscriptionPackageForm.get('secondaryColor')?.touched">
+                    Secondary Color is required
+                  </span>
+                  <span class="errormsg" *ngIf="errorMessage">{{errorMessage}}</span>
+                  <span class="errormsg" *ngIf="subscriptionPackageForm.get('secondaryColor')?.errors?.['pattern']">Use only 6 characters.(<i>including A-F and 0-9</i>)</span>
+              </div>
+            </div>
+
+            <div class="form-row">
+              <div class="form-group col-md-6">
+                  <label for="package">Price</label>
+                  <input formControlName="price" nbInput id="price" type="text" placeholder="Enter Price" (input)="onFieldChange()" maxlength="6">
+                  <span class="errormsg" *ngIf="subscriptionPackageForm.get('price')?.errors?.['required'] && subscriptionPackageForm.get('price')?.touched">
+                    Price is required
+                  </span>
+                  <span class="errormsg" *ngIf="errorMessage">{{errorMessage}}</span>
+                  <span class="errormsg" *ngIf="subscriptionPackageForm.get('price')?.errors?.['pattern']">Invalid input.</span>
+              </div>
+
+              <div class="form-group col-md-6">
+                  <label for="status">Status</label>
+                  <nb-select formControlName="status" placeholder="Select status" (input)="onFieldChange()">
+                      <nb-option value="A">Active</nb-option>
+                      <nb-option value="I">Inactive</nb-option>
+                  </nb-select>
+                  <span class="errormsg" *ngIf="subscriptionPackageForm.get('status')?.errors?.['required'] && subscriptionPackageForm.get('status')?.touched">
+                    Please select a status
+                  </span>
+              </div>
+            </div>
+
+          </div>
+
+          <div class="modal-footer">
+              <button type="submit" class="btn btn-outline-success form-actions" [disabled]="subscriptionPackageForm.invalid || (isEditMode && !isChanged)">Submit</button>
+              <button type="reset" class="btn btn-outline-warning form-actions" (click)="windowRef.close()">Cancel</button>
+          </div>
+
+        </form>
+
+        <div class="loader" *ngIf="loading">
+            <img src="./assets/images/loading.gif" alt="loading" class="loader-img">
+        </div>
+
+      </ng-template>
+
+    </nb-card-body>
+
+  </nb-card>
+</div>
+
+<div class="loader" *ngIf="loading">
+    <img src="./assets/images/loading.gif" alt="loading" class="loader-img">
+</div> -->
+
+<div class="container-fluid" *ngIf="!loading">
+  <nb-card>
+    <nb-card-header>
+      <div class="header-container">
+        <div class="header-title">Subscription Packages</div>
+        <div class="header-actions">
+          <input #search class="search" type="text" placeholder="Search..." (input)="onSearch(search.value)">
+          <button (click)="openWindowForm(formPopup)" nbButton *ngIf="!loading">Add New</button>
+        </div>
+      </div>
+    </nb-card-header>
+
+    <nb-card-body>
+      <angular2-smart-table [settings]="settings" [source]="source" (edit)="onEdit($event, formPopup)" *ngIf="!loading">
+      </angular2-smart-table>
+
+      <ng-template #formPopup>
+
+        <form [formGroup]="subscriptionPackageForm" (ngSubmit)="onSubmit()" class="form" *ngIf="!modelLoading" >
+
+          <div class="scrollable-form">
+
+            <div class="form-row">
+              <div class="form-group col-md-6">
+                  <label for="package">Code</label>
+                  <input formControlName="code" nbInput id="code" type="text" placeholder="Enter Code" maxlength="3">
+                  <span class="errormsg" *ngIf="subscriptionPackageForm.get('code')?.errors?.['required'] && subscriptionPackageForm.get('code')?.touched">
+                    Code is required
+                  </span>
+                  <span class="errormsg" *ngIf="errorMessage">{{errorMessage}}</span>
+                  <span class="errormsg" *ngIf="subscriptionPackageForm.get('code')?.errors?.['pattern']">Use only 3 capital letters.</span>
+              </div>
+
+              <div class="form-group col-md-6">
+                  <label for="package">Package Name</label>
+                  <input formControlName="name" nbInput id="name" type="text" placeholder="Enter Package Name">
+                  <span class="errormsg" *ngIf="subscriptionPackageForm.get('name')?.errors?.['required'] && subscriptionPackageForm.get('name')?.touched">
+                    Package name is required
+                  </span>
+                  <span class="errormsg" *ngIf="errorMessage">{{errorMessage}}</span>
+                  <span class="errormsg" *ngIf="subscriptionPackageForm.get('name')?.errors?.['pattern']">Invalid input.</span>
+              </div>
+            </div>
+
+            <div class="form-row">
+              <div class="form-group col-md-6">
+                  <label for="package">Activation Period (Months)</label>
+                  <input formControlName="activationPeriod" nbInput id="activationPeriod" type="text" placeholder="Enter Activation Period" maxlength="2">
+                  <span class="errormsg" *ngIf="subscriptionPackageForm.get('activationPeriod')?.errors?.['required'] && subscriptionPackageForm.get('activationPeriod')?.touched">
+                    Activation Period is required
+                  </span>
+                  <span class="errormsg" *ngIf="errorMessage">{{errorMessage}}</span>
+                  <span class="errormsg" *ngIf="subscriptionPackageForm.get('activationPeriod')?.errors?.['pattern']">Use only numbers.</span>
+              </div>
+
+              <div class="form-group col-md-6">
+                  <label for="package">Test Count</label>
+                  <input formControlName="testCount" nbInput id="testCount" type="text" placeholder="Enter Test Count" maxlength="6">
+                  <span class="errormsg" *ngIf="subscriptionPackageForm.get('testCount')?.errors?.['required'] && subscriptionPackageForm.get('testCount')?.touched">
+                    Test Count is required
+                  </span>
+                  <span class="errormsg" *ngIf="errorMessage">{{errorMessage}}</span>
+                  <span class="errormsg" *ngIf="subscriptionPackageForm.get('testCount')?.errors?.['pattern']">Use only numbers.</span>
+              </div>
+            </div>
+
+            <div class="form-row">
+              <div class="form-group col-md-6">
+                  <label for="package">Attempt Count</label>
+                  <input formControlName="attemptCount" nbInput id="attemptCount" type="text" placeholder="Enter Attempt Count" maxlength="4">
+                  <span class="errormsg" *ngIf="subscriptionPackageForm.get('attemptCount')?.errors?.['required'] && subscriptionPackageForm.get('attemptCount')?.touched">
+                    Attempt Count is required
+                  </span>
+                  <span class="errormsg" *ngIf="errorMessage">{{errorMessage}}</span>
+                  <span class="errormsg" *ngIf="subscriptionPackageForm.get('attemptCount')?.errors?.['pattern']">Use only numbers.</span>
+              </div>
+
+              <div class="form-group col-md-6">
+                  <label for="package">Sequence</label>
+                  <input formControlName="sequence" nbInput id="sequence" type="text" placeholder="Enter Sequence" maxlength="5">
+                  <span class="errormsg" *ngIf="subscriptionPackageForm.get('sequence')?.errors?.['required'] && subscriptionPackageForm.get('sequence')?.touched">
+                    Sequence is required
+                  </span>
+                  <span class="errormsg" *ngIf="errorMessage">{{errorMessage}}</span>
+                  <span class="errormsg" *ngIf="subscriptionPackageForm.get('sequence')?.errors?.['pattern']">Use only numbers.</span>
+              </div>
+            </div>
+
+            <div class="form-row">
+              <div class="form-group col-md-6">
+                  <label for="package">Primary Color Code</label>
+                  <nb-form-field>
+                    <nb-icon nbPrefix icon="hash-outline" pack="eva"></nb-icon>
+                    <input formControlName="primaryColor" nbInput id="primaryColor" type="text" placeholder="   Enter Color Code" maxlength="6">
+                  </nb-form-field>
+                  <!-- <input formControlName="primaryColor" nbInput id="primaryColor" type="text" placeholder="Enter Primary Color" maxlength="6"> -->
+                  <span class="errormsg" *ngIf="subscriptionPackageForm.get('primaryColor')?.errors?.['required'] && subscriptionPackageForm.get('primaryColor')?.touched">
+                    Primary Color is required
+                  </span>
+                  <span class="errormsg" *ngIf="errorMessage">{{errorMessage}}</span>
+                  <span class="errormsg" *ngIf="subscriptionPackageForm.get('primaryColor')?.errors?.['pattern']">Use only 6 characters.(<i>including A-F and 0-9</i>)</span>
+              </div>
+
+              <div class="form-group col-md-6">
+                  <label for="package">Secondary Color Code</label>
+                  <nb-form-field>
+                    <nb-icon nbPrefix icon="hash-outline" pack="eva"></nb-icon>
+                    <input formControlName="secondaryColor" nbInput id="secondaryColor" type="text" placeholder="   Enter Color Code" maxlength="6">
+                  </nb-form-field>
+                  <!-- <input formControlName="secondaryColor" nbInput id="secondaryColor" type="text" placeholder="Enter Secondary Color" maxlength="6"> -->
+                  <span class="errormsg" *ngIf="subscriptionPackageForm.get('secondaryColor')?.errors?.['required'] && subscriptionPackageForm.get('secondaryColor')?.touched">
+                    Secondary Color is required
+                  </span>
+                  <span class="errormsg" *ngIf="errorMessage">{{errorMessage}}</span>
+                  <span class="errormsg" *ngIf="subscriptionPackageForm.get('secondaryColor')?.errors?.['pattern']">Use only 6 characters.(<i>including A-F and 0-9</i>)</span>
+              </div>
+            </div>
+
+            <div class="form-row">
+              <div class="form-group col-md-6">
+                  <label for="package">Price</label>
+                  <input formControlName="price" nbInput id="price" type="text" placeholder="Enter Price" maxlength="6">
+                  <span class="errormsg" *ngIf="subscriptionPackageForm.get('price')?.errors?.['required'] && subscriptionPackageForm.get('price')?.touched">
+                    Price is required
+                  </span>
+                  <span class="errormsg" *ngIf="errorMessage">{{errorMessage}}</span>
+                  <span class="errormsg" *ngIf="subscriptionPackageForm.get('price')?.errors?.['pattern']">Invalid input.</span>
+              </div>
+
+              <div class="form-group col-md-6">
+                  <label for="status">Status</label>
+                  <nb-select formControlName="status" placeholder="Select status">
+                      <nb-option value="A">Active</nb-option>
+                      <nb-option value="I">Inactive</nb-option>
+                  </nb-select>
+                  <span class="errormsg" *ngIf="subscriptionPackageForm.get('status')?.errors?.['required'] && subscriptionPackageForm.get('status')?.touched">
+                    Please select a status
+                  </span>
+              </div>
+            </div>
+
+            <div class="form-actions">
+              <button type="submit" class="btn btn-outline-success" [disabled]="subscriptionPackageForm.invalid || (isEditMode && !isChanged)">Submit</button>
+              <button type="reset" class="btn btn-outline-warning" (click)="windowRef.close()">Cancel</button>
+            </div>
+
+          </div>
+
+        </form>
+
+        <div class="loader" *ngIf="modelLoading">
+            <img src="./assets/images/loading.gif" alt="loading" class="loader-img">
+        </div>
+
+      </ng-template>
+
+    </nb-card-body>
+
+  </nb-card>
+</div>
+
+<div class="loader" *ngIf="loading">
+    <img src="./assets/images/loading.gif" alt="loading" class="loader-img">
+</div>

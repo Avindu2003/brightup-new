@@ -1,0 +1,199 @@
+<div class="row align-items-end">
+  <div class="col-3">
+    <label class="form-label">Mobile Number / Name</label>
+    <input 
+      type="text" 
+      class="form-control" 
+      [formControl]="myControl" 
+      list="userOptions" 
+      placeholder="Type to search...">
+
+    <datalist id="userOptions">
+      <option *ngFor="let user of filteredOptions | async" [value]="user.mobileNo + ' - ' + user.name">
+    </datalist>
+  </div>
+
+  <div class="col-2">
+    <button type="button" class="btn btn-outline-primary mb-1" (click)="search()">Search</button>
+  </div>
+</div>
+
+
+<div class="body" *ngIf="showData">
+  <div class="row" style="margin-bottom: 10px;">
+    <div class="col-3">
+      <label for="name">Name</label>
+      <span class="data-box">{{user.name}}</span>
+    </div>
+    <div class="col-2">
+      <label for="nic">NIC</label>
+      <span class="data-box">{{user.nic}}</span>
+    </div>
+    <div class="col-3">
+      <label for="mobileNo">Mobile No</label>
+      <span class="data-box">{{user.mobileNo}}</span>
+    </div>
+    <div class="col-2">
+      <label for="medium">Medium</label>
+      <span class="data-box">{{user.medium}}</span>
+    </div>
+    <div class="col-2">
+      <label for="stream">Stream</label>
+      <span class="data-box">{{user.stream}}</span>
+    </div>
+  </div>
+
+  <div class="row">
+    <div class="col-3">
+      <label for="category" style="display: block; margin-bottom: 5px;">Category</label>
+      <div>
+        <span *ngFor="let option of radio" style="margin-right: 15px;">
+            <input
+              type="radio"
+              id="{{ option.id }}"
+              name="myRadioGroup"
+              [value]="option.value"
+              [(ngModel)]="selectedOption" 
+              (ngModelChange)="onCategoryChange()"
+              style="margin-right: 5px;"
+              />
+            <label for="{{ option.id }}">{{ option.label }}</label>
+        </span>
+      </div>
+    </div>
+
+    <div class="col-2">
+      <label for="city">City</label>
+      <span class="data-box">{{user.city}}</span>
+    </div>
+    <div class="col-5">
+      <label for="school">School</label>
+      <span class="data-box">{{user.school}}</span>
+    </div>
+  </div>
+<!-- Past Papers Summary Dashboard - Unit Wise Table -->
+  <nb-card *ngIf="pastPaperUnitData && pastPaperUnitData.length > 0" style="margin-top: 40px;">
+    <nb-card-header>Past Papers Summary Dashboard - Unit Wise</nb-card-header>
+    <nb-card-body>
+      <table [nbTreeGrid]="dataSourcePPUnit" [nbSort]="dataSourcePPUnit" (sort)="updateSortPPUnit($event)">
+        <tr nbTreeGridHeaderRow *nbTreeGridHeaderRowDef="allColumnsPPUnit"></tr>
+        <tr nbTreeGridRow *nbTreeGridRowDef="let row; columns: allColumnsPPUnit"></tr>
+        <ng-container [nbTreeGridColumnDef]="customColumnPPUnit">
+          <th nbTreeGridHeaderCell [nbSortHeader]="getSortDirectionPPUnit(customColumnPPUnit)" *nbTreeGridHeaderCellDef>
+            {{ppUnitHeaders[customColumnPPUnit]}}
+          </th>
+          <td nbTreeGridCell *nbTreeGridCellDef="let row">
+            <ngx-fs-icon [kind]="row.data.kind" [expanded]="row.expanded"></ngx-fs-icon>
+            {{row.data[customColumnPPUnit]}}
+          </td>
+        </ng-container>
+        <ng-container *ngFor="let column of defaultColumnsPPUnit; let index = index"
+          [nbTreeGridColumnDef]="column"
+          [showOn]="getShowOn(index)">
+          <th nbTreeGridHeaderCell [nbSortHeader]="getSortDirectionPPUnit(column)" *nbTreeGridHeaderCellDef>
+            {{ppUnitHeaders[column]}}
+          </th>
+          <td nbTreeGridCell *nbTreeGridCellDef="let row">{{row.data[column] || '-'}}</td>
+        </ng-container>
+      </table>
+    </nb-card-body>
+  </nb-card>
+<!-- Past Papers Summary Dashboard - Mixed Unit Table -->
+  <nb-card *ngIf="pastPaperMixUnitData && pastPaperMixUnitData.length > 0">
+    <nb-card-header>Past Papers Summary Dashboard - Mixed Unit</nb-card-header>
+    <nb-card-body>
+      <table [nbTreeGrid]="dataSourcePPMixUnit" [nbSort]="dataSourcePPMixUnit" (sort)="updateSortPPMixUnit($event)">
+
+        <tr nbTreeGridHeaderRow *nbTreeGridHeaderRowDef="allColumnsPPMixUnit"></tr>
+        <tr nbTreeGridRow *nbTreeGridRowDef="let row; columns: allColumnsPPMixUnit"></tr>
+
+        <ng-container [nbTreeGridColumnDef]="customColumnPPMixUnit">
+          <th nbTreeGridHeaderCell [nbSortHeader]="getSortDirectionPPMixUnit(customColumnPPMixUnit)" *nbTreeGridHeaderCellDef>
+            {{ppMixUnitHeaders[customColumnPPMixUnit]}}
+          </th>
+          <td nbTreeGridCell *nbTreeGridCellDef="let row">
+            <ngx-fs-icon [kind]="row.data.kind" [expanded]="row.expanded"></ngx-fs-icon>
+            {{row.data[customColumnPPMixUnit]}}
+          </td>
+        </ng-container>
+
+        <ng-container *ngFor="let column of defaultColumnsPPMixUnit; let index = index"
+          [nbTreeGridColumnDef]="column"
+          [showOn]="getShowOn(index)">
+          <th nbTreeGridHeaderCell [nbSortHeader]="getSortDirectionPPMixUnit(column)" *nbTreeGridHeaderCellDef>
+            {{ppMixUnitHeaders[column]}}
+          </th>
+          <td nbTreeGridCell *nbTreeGridCellDef="let row">{{row.data[column] || '-'}}</td>
+        </ng-container>
+
+      </table>
+    </nb-card-body>
+  </nb-card>
+
+<!-- Model Papers Summary Dashboard - Unit Wise Table -->
+  <nb-card *ngIf="modelPaperUnitData && modelPaperUnitData.length > 0">
+    <nb-card-header>Model Papers Summary Dashboard - Unit Wise</nb-card-header>
+    <nb-card-body>
+      <table [nbTreeGrid]="dataSourceMPUnit" [nbSort]="dataSourceMPUnit" (sort)="updateSortMPUnit($event)">
+
+        <tr nbTreeGridHeaderRow *nbTreeGridHeaderRowDef="allColumnsMPUnit"></tr>
+        <tr nbTreeGridRow *nbTreeGridRowDef="let row; columns: allColumnsMPUnit"></tr>
+
+        <ng-container [nbTreeGridColumnDef]="customColumnMPUnit">
+          <th nbTreeGridHeaderCell [nbSortHeader]="getSortDirectionMPUnit(customColumnMPUnit)" *nbTreeGridHeaderCellDef>
+            {{mpUnitHeaders[customColumnMPUnit]}}
+          </th>
+          <td nbTreeGridCell *nbTreeGridCellDef="let row">
+            <ngx-fs-icon [kind]="row.data.kind" [expanded]="row.expanded"></ngx-fs-icon>
+            {{row.data[customColumnMPUnit]}}
+          </td>
+        </ng-container>
+
+        <ng-container *ngFor="let column of defaultColumnsMPUnit; let index = index"
+          [nbTreeGridColumnDef]="column"
+          [showOn]="getShowOn(index)">
+          <th nbTreeGridHeaderCell [nbSortHeader]="getSortDirectionMPUnit(column)" *nbTreeGridHeaderCellDef>
+            {{mpUnitHeaders[column]}}
+          </th>
+          <td nbTreeGridCell *nbTreeGridCellDef="let row">{{row.data[column] || '-'}}</td>
+        </ng-container>
+
+      </table>
+    </nb-card-body>
+  </nb-card>
+
+<!-- Model Papers Summary Dashboard - Mixed Unit Table -->
+  <nb-card *ngIf="modelPaperMixUnitData && modelPaperMixUnitData.length > 0">
+    <nb-card-header>Model Papers Summary Dashboard - Mixed Unit</nb-card-header>
+    <nb-card-body>
+      <table [nbTreeGrid]="dataSourceMPMixUnit" [nbSort]="dataSourceMPMixUnit" (sort)="updateSortMPMixUnit($event)">
+
+        <tr nbTreeGridHeaderRow *nbTreeGridHeaderRowDef="allColumnsMPMixUnit"></tr>
+        <tr nbTreeGridRow *nbTreeGridRowDef="let row; columns: allColumnsMPMixUnit"></tr>
+
+        <ng-container [nbTreeGridColumnDef]="customColumnMPMixUnit">
+          <th nbTreeGridHeaderCell [nbSortHeader]="getSortDirectionMPMixUnit(customColumnMPMixUnit)" *nbTreeGridHeaderCellDef>
+            {{mpMixUnitHeaders[customColumnMPMixUnit]}}
+          </th>
+          <td nbTreeGridCell *nbTreeGridCellDef="let row">
+            <ngx-fs-icon [kind]="row.data.kind" [expanded]="row.expanded"></ngx-fs-icon>
+            {{row.data[customColumnMPMixUnit]}}
+          </td>
+        </ng-container>
+
+        <ng-container *ngFor="let column of defaultColumnsMPMixUnit; let index = index"
+          [nbTreeGridColumnDef]="column"
+          [showOn]="getShowOn(index)">
+          <th nbTreeGridHeaderCell [nbSortHeader]="getSortDirectionMPMixUnit(column)" *nbTreeGridHeaderCellDef>
+            {{mpMixUnitHeaders[column]}}
+          </th>
+          <td nbTreeGridCell *nbTreeGridCellDef="let row">{{row.data[column] || '-'}}</td>
+        </ng-container>
+
+      </table>
+    </nb-card-body>
+  </nb-card>
+</div>
+<div class="loader" *ngIf="loading">
+    <img src="./assets/images/loading.gif" alt="loading" class="loader-img">
+</div>

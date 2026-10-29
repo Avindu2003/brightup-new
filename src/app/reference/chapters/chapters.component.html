@@ -1,0 +1,131 @@
+<div class="container-fluid" *ngIf="!loading"> 
+    <nb-card>
+        <nb-card-header>
+            <div class="header-container">
+                <div class="header-title">Chapter</div>
+
+                <div class="header-actions">
+                    <input #search  type="text" placeholder="Search..." (input)="onSearch(search.value)" class="search">
+                    <button (click)="openWindowForm(formPopup)" nbButton>Add New</button>
+                </div>
+
+            </div>
+        </nb-card-header>
+        <nb-card-body>
+            <angular2-smart-table [settings]="settings" [source]="source" (edit)="edit($event ,formPopup)"></angular2-smart-table>
+
+            <ng-template #formPopup>
+                <form [formGroup]="form" class="form" *ngIf="!modelLoading">
+                    <div class="row">
+                        <div class="form-group col-md-6">
+                            <label for="examCategoryId">Exam Category</label>
+                            <nb-select fullWidth formControlName="examCategoryId" placeholder="Select Exam Category" (selectedChange)="onExamCategoryChange($event)">
+                                <nb-option *ngFor="let category of examCategoryList" [value]="category.examCategoryId">
+                                    {{ category.exam }}
+                                </nb-option>
+                            </nb-select>
+                            <span *ngIf="form.get('examCategoryId')?.touched && form.get('examCategoryId')?.hasError('required')" class="errormsg">This field is required.</span>
+                        </div>
+
+                        <div class="form-group col-md-6">
+                            <label for="subjectId">Subject</label>
+                            <nb-select fullWidth formControlName="subjectId" placeholder="Select Subject" (selectedChange)="onFieldChange()">
+                                <nb-option *ngFor="let subject of filteredSubjectList" [value]="subject.subjectId">
+                                    {{ subject.subject }}
+                                </nb-option>
+                            </nb-select>
+                            <span *ngIf="form.get('subjectId')?.touched && form.get('subjectId')?.hasError('required')" class="errormsg">This field is required.</span>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="form-group col-md-6">
+                            <label for="chapterNo">Chapter No</label>
+                            <input nbInput fullWidth formControlName="chapterNo" placeholder="Enter Chapter No" maxlength="3" (change)="onFieldChange()">
+                            <span *ngIf="form.get('chapterNo')?.touched && form.get('chapterNo')?.hasError('required')" class="errormsg">This field is required.</span>
+                            <span *ngIf="form.get('chapterNo')?.errors?.['pattern']" class="errormsg">Invalid Chapter No</span>
+                        </div>
+
+                        <div class="form-group col-md-6">
+                            <label for="name">Chapter Name</label>
+                            <input nbInput fullWidth formControlName="name" placeholder="Enter Chapter Name" (change)="onFieldChange()">
+                            <span class="errormsg" *ngIf="form.get('name')?.touched && form.get('name')?.hasError('required')">This field is required.</span>
+                        </div>
+                    </div>
+                    
+                    <div class="row">
+                        <div class="form-group col-md-6">
+                            <label for="sinName">Chapter Name (Sinhala)</label>
+                            <input nbInput fullWidth formControlName="sinName" placeholder="Enter Chapter Name" (change)="onFieldChange()">
+                            <!-- <span class="errormsg" *ngIf="form.get('name')?.touched && form.get('name')?.hasError('required')">
+                                This field is required.
+                            </span> -->
+                        </div>
+
+                        <div class="form-group col-md-6">
+                            <label for="tamName">Chapter Name (Tamil)</label>
+                            <input nbInput fullWidth formControlName="tamName" placeholder="Enter Chapter Name" (change)="onFieldChange()">
+                            <!-- <span class="errormsg" *ngIf="form.get('name')?.touched && form.get('name')?.hasError('required')">
+                                This field is required.
+                            </span> -->
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="form-group col-md-6">
+                            <label for="year">Grade</label>
+                            <input nbInput fullWidth formControlName="year" placeholder="Enter Grade" maxlength="2" (change)="onFieldChange()">
+                            <!-- <span *ngIf="form.get('year')?.touched && form.get('year')?.hasError('required')" class="errormsg">This field is required.</span> -->
+                            <span *ngIf="form.get('year')?.errors?.['pattern']" class="errormsg">Invalid Grade</span>
+                        </div>
+
+                        <div class="form-group col-md-6">
+                            <label>Term</label>
+                            <nb-select fullWidth formControlName="term" placeholder="Select Term" (selectedChange)="onFieldChange()">
+                                <nb-option [value]="1">1</nb-option>
+                                <nb-option [value]="2">2</nb-option>
+                                <nb-option [value]="3">3</nb-option>
+                            </nb-select>
+                            <!-- <span class="errormsg" *ngIf="form.get('term')?.touched && form.get('term')?.hasError('required')" class="errormsg">This field is required.</span> -->
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="form-group col-md-6">
+                            <label for="noOfPeriods">No of Periods</label>
+                            <input nbInput fullWidth formControlName="noOfPeriods" placeholder="Enter No of Periods" maxlength="3" (change)="onFieldChange()">
+                            <!-- <span *ngIf="form.get('noOfPeriods')?.touched && form.get('noOfPeriods')?.hasError('required')" class="errormsg">This field is required.</span> -->
+                            <span *ngIf="form.get('noOfPeriods')?.errors?.['pattern']" class="errormsg">Invalid No Of Periods</span>
+                        </div>
+
+                        <div class="form-group col-md-6">
+                            <label>Status</label>
+                                <nb-select fullWidth formControlName="status" placeholder="Select Status" (selectedChange)="onFieldChange()">
+                                <!-- <nb-option value="">-Select-</nb-option>-->
+                                <nb-option value="A">Active</nb-option>
+                                <nb-option value="I">Inactive</nb-option>
+                            </nb-select>
+                            <span class="errormsg" *ngIf="form.get('status')?.touched && form.get('status')?.hasError('required')" class="errormsg">This field is required.</span>
+                        </div>
+
+                        <div class="check-box col-md-6">
+                            <nb-checkbox formControlName="studyMaterialAvailable">Study Material Available</nb-checkbox>
+                        </div>
+                    </div>
+
+                    <div class="form-actions">
+                        <button class="btn btn-outline-success" type="button" [disabled]="form.invalid || (isEditMode && !isChanged)"  (click)="submitForm()">Submit</button>
+                        <button class="btn btn-outline-warning" type="button"  (click)="windowRef.close()">Cancel</button>
+                    </div>
+                    
+                </form>
+                <div class="loader" *ngIf="modelLoading">
+                    <img src="./assets/images/loading.gif" alt="modelLoading" class="loader-img">
+                </div>
+            </ng-template>
+        </nb-card-body>
+    </nb-card>
+</div>
+<div class="loader" *ngIf="loading">
+    <img src="./assets/images/loading.gif" alt="loading" class="loader-img">
+</div>

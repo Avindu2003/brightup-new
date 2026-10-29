@@ -1,0 +1,170 @@
+<nb-card>
+  <nb-card-header class="d-flex justify-between align-center">
+    <span>Educational Details</span>
+
+    <div class="d-flex gap-2">
+      <input #search class="search" type="text" placeholder="Search..." (input)="onSearch(search.value)">
+
+      <nb-select placeholder="Year" [(selected)]="selectedYear" (selectedChange)="filters()">
+        <nb-option *ngFor="let year of years" [value]="year">{{ year }}</nb-option>
+      </nb-select>
+
+      <nb-select placeholder="Stream" [(selected)]="selectedStream" (selectedChange)="filters()">
+        <nb-option *ngFor="let stream of streams" [value]="stream">{{ stream }}</nb-option>
+      </nb-select>
+
+      <nb-select placeholder="Medium" [(selected)]="selectedMedium" (selectedChange)="filters()">
+        <nb-option *ngFor="let medium of mediums" [value]="medium">{{ medium }}</nb-option>
+      </nb-select>
+
+      <nb-select placeholder="Grade" [(selected)]="selectedGrade" (selectedChange)="filters()">
+        <nb-option *ngFor="let grade of grades" [value]="grade">{{ grade }}</nb-option>
+      </nb-select>
+
+    </div>
+  </nb-card-header>
+
+  <nb-card-body>
+    <angular2-smart-table [settings]="settings" [source]="data" (deleteConfirm)="onDeleteConfirm($event)"
+      (edit)="view($event, viewModal)">
+    </angular2-smart-table>
+    <ng-template #viewModal>
+      <form [formGroup]="viewForm">
+        <div class="scrollable-form">
+          <div class="loader" *ngIf="modelLoading">
+            <img src="./assets/images/loading.gif" alt="modelLoading" class="loader-img">
+          </div>
+          <div class="container-fluid">
+
+            <div class="row g-3 ">
+              <div class="col-xxl-5 col-lg-5">
+                <div class="card mb-3">
+                  <div class="card-body text-center align-items-center " >
+                    <img src="assets/images/eva.png" alt="User Photo" width="100%" max-height="200px"> 
+                  </div>
+                </div>
+
+                <div class="card h-80">
+                  <div class="card-body">
+                    <div class="row mb-3">
+                      <div class="d-flex align-items-center gap-2">
+                        <label class="mb-0 fw-semibold"> Created Test Count:</label>
+                        <span>{{ selectedRecord?.testCount }}</span>
+                      </div>
+                    </div>
+                    <div class="row mb-3">
+                      <div class="d-flex align-items-center gap-2">
+                        <label class="mb-0 fw-semibold">Attempted Test Count:</label>
+                        <span>{{ selectedRecord?.attemptedTestCount }}</span>
+                      </div>
+                    </div>
+                    <div class="row mb-3">
+                      <div class="d-flex align-items-center gap-2">
+                        <label class="mb-0 fw-semibold">Attempts Count:</label>
+                        <span>{{ selectedRecord?.attemptsCount }}</span>
+                      </div>
+                    </div>
+                    <div class="row mb-3">
+                      <div class="d-flex align-items-center gap-2">
+                        <label class="mb-0 fw-semibold">Average:</label>
+                        <span>{{ selectedRecord?.avarage }}</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="col-xxl-7 col-lg-7">
+                <div class="card h-100">
+                  <div class="card-header bg-light fw-bold">Personal Details</div>
+                  <div class="card-body">
+                    <div class="row ">
+                      <div class="d-flex align-items-center gap-4">
+                        <div class="d-flex align-items-center gap-2">
+                          <label for="name" class="mb-0 fw-semibold">Name:</label>
+                          <span>{{ selectedRecord?.name }}</span>
+                        </div>
+                        <div class="d-flex align-items-center gap-2">
+                          <label for="mobileNo" class="mb-0 fw-semibold">Mobile No:</label>
+                          <span>{{ selectedRecord?.mobileNo }}</span>
+                        </div>
+                        
+                      </div>
+                    </div>
+                    <div class="row">
+                      <div class="d-flex align-items-center gap-4">
+                        <div class="d-flex align-items-center gap-2">
+                          <label for="year" class="mb-0 fw-semibold">Year:</label>
+                          <span>{{ selectedRecord?.year }}</span>
+                        </div>
+                        <div class="d-flex align-items-center gap-2">
+                          <label for="stream" class="mb-0 fw-semibold">Stream:</label>
+                          <span>{{ selectedRecord?.stream.code }}</span>
+                        </div>
+                      </div>
+                    </div>
+                    <div class="row">
+                      <div class="d-flex align-items-center gap-2">
+                          <label for="medium" class="mb-0 fw-semibold">Medium:</label>
+                          <span>{{ selectedRecord?.medium }}</span>
+                      </div>
+                    </div>
+
+                    <div class="row">
+                      <div class="d-flex align-items-center gap-2">
+                        <label for="medium" class="mb-0 fw-semibold">Package:</label>
+                        <span>{{ selectedRecord?.package }}</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="container-fluid p-8">
+            <div class="row justify-content-center">
+              <div class="btn-group" role="group" aria-label="Info buttons">
+                <button
+                  *ngFor="let btn of subjectList"
+                  type="button"
+                  class="btn btn-outline-info"
+                  (click)="onButtonClick(btn)">
+                  {{ btn.label }}
+                </button>
+              </div>
+            </div>
+
+            <div class="row">
+              <div class="card">
+                <nb-accordion>
+                  <nb-accordion-item *ngFor="let test of selectedRecord?.tests">
+                    <nb-accordion-item-header>
+                      {{ test.name }} - Total: {{ test.total }}
+                    </nb-accordion-item-header>
+                    <nb-accordion-item-body>
+                      <table class="table table-sm table-bordered mt-2">
+                        <thead class="table-light">
+                          <tr>
+                            <th>Attempt</th>
+                            <th>Mark</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          <tr *ngFor="let attempt of test.attempts">
+                            <td>{{ attempt.name }}</td>
+                            <td>{{ attempt.mark }}</td>
+                          </tr>
+                        </tbody>
+                      </table>
+                    </nb-accordion-item-body>
+                  </nb-accordion-item>
+                </nb-accordion>
+              </div>
+            </div>
+          </div>
+        </div>
+      </form>
+    </ng-template>
+  </nb-card-body>
+</nb-card>

@@ -1,0 +1,105 @@
+<nb-card>
+  <nb-card-header>Active subscription summary as of today</nb-card-header>
+
+  <nb-card-body>
+    <div class="d-flex justify-content-between gap-3 mb-3 w-50">
+      <nb-card class="summary-item-card">
+        <nb-card-body>
+          <div class="details">
+            <label class="label text-hint packageName-text"
+              >Total Active Users</label
+            >
+            <div class="h3">{{ totalCount }}</div>
+          </div>
+          <div class="icon-box blue-bg">
+            <nb-icon icon="people-outline"></nb-icon>
+          </div>
+        </nb-card-body>
+      </nb-card>
+    </div>
+
+    <div class="d-flex justify-content-between gap-3 mb-3">
+      <nb-card
+        class="summary-item-card"
+        *ngFor="let dashbord of dashobrodDetailList; index as i"
+      >
+        <nb-card-body>
+          <div class="details">
+            <label class="label text-hint packageName-text">
+              {{ dashbord.packageName }}
+            </label>
+
+            <div class="h3">
+              {{ dashbord.activeCount }}
+              <span class="uset-txt packageName-text">Users</span>
+            </div>
+          </div>
+
+          <!-- <div class="icon-box green-bg">
+             {{iconList[i]}}
+          </div> -->
+          <div [ngClass]="iconList[i].class">
+            <nb-icon [icon]="iconList[i].icon"></nb-icon>
+          </div>
+        </nb-card-body>
+      </nb-card>
+    </div>
+
+    <!-- <div class="d-flex justify-content-between gap-3 mb-3">
+      <nb-card
+        class="summary-item-card">
+        <nb-card-body>
+          <div class="details">
+            <label class="label text-hint packageName-text">
+            {{beginnerName}}
+            </label>
+
+            <div class="h3">
+           {{beginnerCount}} <span class="uset-txt packageName-text">Users</span>
+            </div>
+          </div>
+
+          <div class="icon-box green-bg">
+             <nb-icon icon="person-outline"></nb-icon> 
+          </div>
+        </nb-card-body>
+      </nb-card>
+
+      <nb-card class="summary-item-card">
+        <nb-card-body>
+          <div class="details">
+            <label class="label text-hint packageName-text">{{starterName}}</label>
+            <div class="h3">{{starterCount}} <span class="uset-txt">Users</span></div>
+          </div>
+          <div class="icon-box yellow-bg">
+             <nb-icon icon="star-outline"></nb-icon> 
+          </div>
+        </nb-card-body>
+      </nb-card>
+
+      <nb-card class="summary-item-card">
+        <nb-card-body>
+          <div class="details">
+            <label class="label text-hint packageName-text">{{intermediateName}}</label>
+            <div class="h3">{{intermediateCount}} <span class="uset-txt">Users</span></div>
+          </div>
+          <div class="icon-box purple-bg">
+            <nb-icon icon="hard-drive-outline"></nb-icon>
+          </div>
+        </nb-card-body>
+      </nb-card>
+
+      <nb-card class="summary-item-card">
+        <nb-card-body>
+          <div class="details">
+            <label class="label text-hint packageName-text">{{professionalName}}</label>
+            <div class="h3">{{prfessionalCount}} <span class="uset-txt">Users</span></div>
+          </div>
+          <div class="icon-box red-bg">
+            <nb-icon icon="bookmark-outline"></nb-icon>
+          </div>
+        </nb-card-body>
+      </nb-card>
+    </div> -->
+  </nb-card-body>
+</nb-card>

@@ -1,0 +1,20 @@
+@import 'bootstrap/scss/bootstrap';
+@import '../node_modules/bootstrap/scss/bootstrap';
+
+.loader{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    align-self: center;
+    height: 75dvh !important;
+    margin-top: unset !important;
+}
+
+.loader-img {
+    max-width: 120px;
+}
+
+.my-custom-large-window {
+  width: 500px !important;
+  min-width: 500px !important;
+}

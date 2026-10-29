@@ -1,0 +1,10 @@
+.card-title {
+  margin-bottom: 0.5rem !important; /* Forces the spacing */
+  
+  /* Nebular Font Variables */
+  font-size: var(--text-heading-5-font-size);
+  font-family: var(--text-heading-5-font-family);
+  font-weight: var(--text-heading-5-font-weight);
+  line-height: var(--text-heading-5-line-height);
+  color: var(--text-basic-color); /* Optional: Ensures text color matches theme */
+}
